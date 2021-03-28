@@ -13,7 +13,9 @@ def catalogar():
     # OR options.add_argument("--disable-gpu")
     
     os.environ['MOZ_HEADLESS'] = '1'
-    browser = webdriver.Chrome("navegador/chromedriver", chrome_options=options)
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('androidPackage', 'com.android.chrome')
+    browser = webdriver.Chrome('./chromedriver', options=options)
     #browser = webdriver.Chrome('chromedriver', chrome_options=options)
 
 
