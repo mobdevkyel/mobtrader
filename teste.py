@@ -164,7 +164,7 @@ def buscar():
     opcao = ''
 
     paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit = catalogar()
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
     if tp == 'TOURNAMENT':
         opcao = "binaria"
         inicio(ganhos, percas, atual)
@@ -258,7 +258,7 @@ def buscar2():
     
 
     paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit = catalogar()
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
     if tp == 'TOURNAMENT':
         opcao = "binaria"
         inicio(ganhos, percas, atual)
@@ -356,7 +356,7 @@ def inicio(ganhos, percas, atual):
     global BANCAINICIAL
 
     
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
     print(f'{Amarelo}______  ___       ______  ________                _________{Reset}')              
     print(f'{Amarelo}___   |/  /______ ___  /_ ___  __/______________ _______  /_____ ________{Reset}')
     print(f'{Amarelo}__  /|_/ / _  __ \__  __ \__  /   __  ___/_  __ `/_  __  / _  _ \__  ___/{Reset}')
@@ -2771,7 +2771,7 @@ if atu == 0:
     atu = 1
     #======================================================================================
     #:===============================================================:#
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
     print('INFORME SEU EMAIL\n')
     login = input('EMAIL: ')
     if login == '':
@@ -2780,7 +2780,7 @@ if atu == 0:
     if password == '':
         password = ''
 
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
     print('INFORME O TIPO DA CONTA\n')
     print('1 = CONTA TREINO')
     print('2 = CONTA REAL')
@@ -2794,7 +2794,7 @@ if atu == 0:
         account_type = 'TOURNAMENT'
     tp = account_type
 
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
     print('Informe o valor da primeira entrada')
     VR = int(input('Valor: '))
     quantidade = float(VR)
@@ -2804,13 +2804,13 @@ if atu == 0:
     stop_win = float(STOPWIN)
     stop_loss = float(STOPLOSS)
 
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
     print('Informe o sistema de gale')
     print('1 = Martingale simples')
     print('2 = Sair\n')
     sistema = int(input('ESCOLHA UM NUMERO: '))
     if sistema == 1:
-        os.system('cls')
+        os.system('cls' if os.name == 'nt' else 'clear')
         print('Informe a quantidade de martingales')
         GL = int(input('Gales: '))
         martingale = GL
@@ -2833,7 +2833,7 @@ if atu == 0:
     currency_account = iq.get_currency()
     account_balance = iq.get_balance()
     DATE_TIME_FORMAT = '%Y-%m-%d %H:%M'
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
     x = perfil()
     nome = str(x['name'])
     saldo = (f"{'Conta de treino saldo' if account_type == 'PRACTICE'  else 'Saldo'}: {Amarelo}{format_currency_value(currency_account, account_balance)}{Reset}")
