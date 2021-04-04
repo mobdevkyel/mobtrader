@@ -1,48 +1,46 @@
 
-from selenium import webdriver
+import requests
+from bs4 import BeautifulSoup
+import json
 
-import time, os
+
 
 def catalogar():
-    URL = 'https://catalogador.ml/'
-
-    options = webdriver.ChromeOptions()
-    options.add_argument('headless')
-    options.add_argument('window-size=1920x1080')
-    options.add_argument("disable-gpu")
-    # OR options.add_argument("--disable-gpu")
     
-    os.environ['MOZ_HEADLESS'] = '1'
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option('androidPackage', 'com.android.chrome')
-    browser = webdriver.Chrome('./chromedriver', options=options)
-    #browser = webdriver.Chrome('chromedriver', chrome_options=options)
+    
+    url = 'https://catalogador.ml/api/porcentagemGale2/M1'
 
+    class_list = set()
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
 
-    browser.get(URL)
-    time.sleep(15)
+    todos = json.loads(page.content)
 
-    texto = browser.find_element_by_xpath('/html/body/main').text
-    lista = [texto]
-    lista2 = []
-    for i in lista:
-        dados = str(i).split('\n')
-        paridade = dados[0]
-        padrao = dados[1]
-        porcentagem = dados[2].replace("%", "")
-        dv1 = dados[4].split(' ')
-        dv2 = dados[5].split(' ')
-        WIN = dv1[0]
-        G1 = dv1[1]
-        G2 = dv1[2]
-        HIT = dv1[3]
-        win = dv2[0]
-        g1 = dv2[1]
-        g2 = dv2[2]
-        hit = dv2[3]
+    par01 = todos['Todos'][0]
+    atu = todos['ultimaAtualizacao']
+    percent = par01[0]
+    #par = par01[1]
+    #padrao = par01[2]
+    per = par01[3]
+    taxa = str(per[1])
+    
+    
+   
+    
+    paridade = par01[1]
+    padrao = par01[2]
+    porcentagem = taxa.replace("%", "")
+    WIN = per[7]
+    G1 = per[9]
+    G2 = per[10]
+    HIT = per[8]
+    win = per[2]
+    g1 = per[4]
+    g2 = per[5]
+    hit = per[3]
 
-        Melhor = paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit
-        #print(Melhor)
+    Melhor = paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit
+    #print(Melhor)
 
-    return paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit
-
+    return paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit, atu
+#catalogar()

@@ -76,6 +76,12 @@ gerencia = 1
 preju = 0
 Nv = 10
 gerenciada = False
+hora_inicial = ''
+hora_X = ''
+espera = 0
+AT = False
+TPM = 'M15'
+ATU = ''
 
 #===================================================================================
 
@@ -149,6 +155,10 @@ def buscar():
     global c3
     global opcao
     global tp
+    global hora_inicial
+    global hora_X
+    global espera
+    global ATU
 
     paridade = ''
     padrao = ''
@@ -162,8 +172,11 @@ def buscar():
     g2 = 0
     hit = 0
     opcao = ''
+    ATU = ''
 
-    paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit = catalogar()
+       
+
+    paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit, ATU = catalogar()
     os.system('cls' if os.name == 'nt' else 'clear')
     if tp == 'TOURNAMENT':
         opcao = "binaria"
@@ -255,9 +268,13 @@ def buscar2():
     global c3
     global opcao
     global iqo_api
+    global hora_inicial
+    global hora_X
+    global espera
+    global ATU
     
 
-    paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit = catalogar()
+    paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit, ATU = catalogar()
     os.system('cls' if os.name == 'nt' else 'clear')
     if tp == 'TOURNAMENT':
         opcao = "binaria"
@@ -280,6 +297,9 @@ def buscar2():
     if selecao == '1':
         buscar2()
     elif selecao == '2':
+        hora_inicial = datetime.now()
+        hora_X = horarioX()
+        
         if padrao == 'MHI':
             MHI()
         elif padrao == 'MHI2':
@@ -354,6 +374,8 @@ def inicio(ganhos, percas, atual):
     global VIT
     global DER
     global BANCAINICIAL
+    global hora_X
+    global ATU
 
     
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -365,8 +387,8 @@ def inicio(ganhos, percas, atual):
     print(f'{Azul}FULL MHI V 1.0{Reset} - Contato: +55 (11) 9 7615-9233\n')    
     print(f'Ganhos: {Verde}{round(ganhos, 2)}{Reset} || Percas: {Vermelho}{round(percas, 2)}{Reset} || Locros: {Amarelo}{round(atual, 2)}{Reset} || Conta: {Vermelho}{conta}{Reset} || Opção: {Amarelo}{opcao}{Reset}\n')
     print(f'VITORIAS: {Verde}{VIT}{Reset} // DERROTAS: {Vermelho}{DER}{Reset} // SUA BANCA INICIAL: {Vermelho}{round(BANCAINICIAL, 2)}{Reset} // SUA BANCA ATUAL: {Amarelo}{round(banca(), 2)}{Reset}\n')
-    print(f'MELHOR MOEDA: {Verde}{paridade}{Reset} || PADRÃO: {Verde}{padrao}{Reset}\nPORCENTAGEM DE ACERTOS: {Verde}{porcentagem}%{Reset}\nVITORIAS DE PRIMEIRA: {Verde}{WIN} - {win} VITORIAS{Reset}\nVITORIAS NO GALE 1: {Verde}{G1} - {g1} VITORIAS{Reset}\nVITORIAS NO GALE 2: {Verde}{G2} - {g2} VITORIAS{Reset}\nHIT: {Vermelho}{HIT} - {hit} DERROTAS{Reset}')
-    print(f'FONTE: {Azul}catalogador.ml{Reset}')
+    print(f'MELHOR MOEDA: {Verde}{paridade}{Reset} || PADRÃO: {Verde}{padrao}{Reset}\nPORCENTAGEM DE ACERTOS: {Verde}{porcentagem}%{Reset}\nVITORIAS DE PRIMEIRA: {Verde}{WIN} - {win}% DE VITORIAS{Reset}\nVITORIAS NO GALE 1: {Verde}{G1} - {g1}% DE VITORIAS{Reset}\nVITORIAS NO GALE 2: {Verde}{G2} - {g2}% DE VITORIAS{Reset}\nHIT: {Vermelho}{HIT} - {hit}% DE DERROTAS{Reset}')
+    print(f'FONTE: {Azul}catalogador.ml{Reset} - {Amarelo}AGENDA: Dia {hora_X}{Reset}')
     print(f'*********************************************************************************************')
 
     #if STP:
@@ -377,23 +399,63 @@ def stop(ganhos,percas):
     global stop_win
     global atual
     global STP
-
+    global hora_inicial
+    global hora_X
+    global espera
+    global AT
+    global atual
+    global espera
+    
             
     if atual <= float('-' + str(abs(stop_loss))):
-        STP = True
+        
         inicio(ganhos, percas, atual)
-        print('Stop Loss batido!')
-        print('Vamos finalizar por hoje né!!!!!')
-        return STP
+        print('Stop Loss batido!!!')
+        if AT == True:
+            hora2 = datetime.now()
+            hora0 = hora2.strftime('%d %H:%M:%S')
+            hora00 = datetime.now() + timedelta(hours=int(espera))
+            print(f'Vamos reiniciar novamente em {hora_X}')
+            while True:
+                hora0 = hora2.strftime('%d %H:%M:%S')
+                if hora0 == hora_X:
+                    hora_X = hora00.strftime('%d %H:%M:%S')
+                    atual = float(0)
+                    ganhos = float(0)
+                    percas = float(0)
+                    buscar()
+                    break
+                else:
+                    print('Horario Atual: '+ datetime.now().strftime('%d %H:%M:%S'),'Horario Futuro: '+ hora_X, end='\r')
+        else:
+            print('VAMOS PARAR POR HOJE NÉ!!!!')
+            return True
         
-        
+
         
     if atual >= float(abs(stop_win)):
-        STP = True
+        
         inicio(ganhos, percas, atual)
-        print('STOP WIN ATINGIDO')
-        print('VAMOS POR ESSA NA CONTA E VOLTAR SO AMANHÃ NÉ!!!!')
-        return STP
+        print('STOP WIN ATINGIDO!!!')
+        if AT == True:
+            hora2 = datetime.now()
+            hora0 = hora2.strftime('%d %H:%M:%S')
+            hora00 = datetime.now() + timedelta(hours=int(espera))
+            print(f'Vamos reiniciar novamente em {hora_X}')
+            while True:
+                hora0 = hora2.strftime('%d %H:%M:%S')
+                if hora0 == hora_X:
+                    hora_X = hora00.strftime('%d %H:%M:%S')
+                    atual = float(0)
+                    ganhos = float(0)
+                    percas = float(0)
+                    buscar()
+                    break
+                else:
+                    print('Horario Atual: '+ datetime.now().strftime('%d %H:%M:%S'),'Horario Futuro: '+ hora_X, end='\r')
+        else:
+            print('VAMOS POR ESSA NA CONTA E VOLTAR SO AMANHÃ NÉ!!!!')
+            return True
         
 def sorosgale(ativo,quantidade, direcao, tempo,hora,opcao,NV,MT,CT,tempo2):
     global martingale
@@ -1032,8 +1094,16 @@ def pay(ativo, opcao, tempo):
         
 def horario():
     hora = datetime.now()
-    hora = hora.strftime('%H:%M')
+    hora = hora.strftime('%H:%M:%S')
     return hora
+
+def horarioX():
+    global espera
+    hora2 = datetime.now()
+    hora0 = hora2.strftime('%d %H:%M:%S')
+    hora00 = datetime.now() + timedelta(hours=int(espera))
+    hora1 = hora00.strftime('%d %H:%M:%S')
+    return hora1
 
 def banca():
     return iq.get_balance()
@@ -2767,6 +2837,9 @@ def gerenciamento(resultado, lucro, entrada):
     
         return entrada    
 
+
+
+
 if atu == 0:
     atu = 1
     #======================================================================================
@@ -2805,11 +2878,25 @@ if atu == 0:
     stop_loss = float(STOPLOSS)
 
     os.system('cls' if os.name == 'nt' else 'clear')
-    print('Informe o sistema de gale')
-    print('1 = Martingale simples')
-    print('2 = Sair\n')
+    print('Habilitar modo altonomo?')
+    print('1 = SIM')
+    print('2 = NÃO\n')
     sistema = int(input('ESCOLHA UM NUMERO: '))
     if sistema == 1:
+        AT = True
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print('Informe a quantidade de martingales')
+        GL = int(input('Gales: '))
+        martingale = GL
+        martingale += 1
+        print('\nFator multiplicador do gale')
+        FL = float(input('Multiplicar por: '))
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print('Informe em quantas horas devo reiniciar as entradas apor um stop\nInforme emtre 1 e 24 horas\n')
+        espera = int(input('Quantas: '))
+     
+    elif sistema == 2:
+        AT = False
         os.system('cls' if os.name == 'nt' else 'clear')
         print('Informe a quantidade de martingales')
         GL = int(input('Gales: '))
@@ -2818,8 +2905,6 @@ if atu == 0:
         print('\nFator multiplicador do gale')
         FL = float(input('Multiplicar por: '))
 
-    elif sistema == 2:
-        print('***')
         
 
     # Aqui começa a configuração da API, não alterar
