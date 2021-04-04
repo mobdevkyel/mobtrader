@@ -2866,6 +2866,7 @@ if atu == 0:
     elif ct == '3':
         account_type = 'TOURNAMENT'
     tp = account_type
+     
 
     os.system('cls' if os.name == 'nt' else 'clear')
     print('Informe o valor da primeira entrada')

@@ -3,7 +3,16 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
+def disponiveis():
+    url = 'https://catalogador.ml/api/porcentagemGale2/M1'
 
+    class_list = set()
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+
+    todos = json.loads(page.content)
+    DISPO = todos['pares']
+    return DISPO
 
 def catalogar():
     
@@ -23,6 +32,7 @@ def catalogar():
     #padrao = par01[2]
     per = par01[3]
     taxa = str(per[1])
+    DISPO = todos['pares']
     
     
    
