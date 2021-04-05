@@ -14,12 +14,22 @@ cd mobtrader
 
 pip install requirements.txt
 
-chmod +x mobtrader.sh
-
-### INICIAR / ATUALIZAR ###
+### INICIAR ###
 
 cd mobtrader
 
-./mobtrader.sh
+python mobtrader.py
+
+### ATUALIZAR ###
+
+cd mobtrader
+
+wget -N https://github.com/mobdevkyel/mobtrader/blob/main/mobtrader.py
+
+wget -N https://github.com/mobdevkyel/mobtrader/blob/main/busca.py
+
+wget -N https://github.com/mobdevkyel/mobtrader/blob/main/melhor_payout_par.py
+
+python mobtrader.py
 
 ![image](https://user-images.githubusercontent.com/79609322/113521180-271bb300-956e-11eb-9dc8-171970933fc0.png)
