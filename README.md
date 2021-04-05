@@ -1,13 +1,20 @@
 Modo de uso no Termux
 
 ### INSTALAÇÃO ###
+
 pkg install wget
 
-wget https://github.com/mobdevkyel/mobtrader/blob/main/mobinstalr.sh
+pkg install python
 
-chmod +x mobinstalr.sh
+pkg install git
 
-./mobinstalr.sh
+git clone https://github.com/mobdevkyel/mobtrader
+
+cd mobtrader
+
+pip install requirements.txt
+
+chmod +x mobtrader.sh
 
 ### INICIAR / ATUALIZAR ###
 
