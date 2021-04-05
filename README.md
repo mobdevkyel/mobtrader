@@ -12,7 +12,17 @@ git clone https://github.com/mobdevkyel/mobtrader
 
 cd mobtrader
 
-pip install requirements.txt
+pip install requests
+
+pip install websocket-client==0.56
+
+pip install mysql-connector
+
+pip install python-dateutil
+
+pip install bs4
+
+python mobtrader.py
 
 ### INICIAR ###
 
