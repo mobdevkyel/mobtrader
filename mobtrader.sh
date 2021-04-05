@@ -1,12 +1,11 @@
 #!/bin/bash
 #Criado por: Ezequiel - 2021
 ###
-echo "instalador Mobtrader BOT"
+echo "Iniciar Mobtrader BOT"
 echo
-pkg install python
-pkg install git
-pkg install wget
-git clone https://github.com/mobdevkyel/mobtrader
 cd mobtrader
-pip install requirements.txt
+wget https://github.com/mobdevkyel/mobtrader/blob/main/mobtrader.py
+wget https://github.com/mobdevkyel/mobtrader/blob/main/busca.py
+wget https://github.com/mobdevkyel/mobtrader/blob/main/melhor_payout_par.py
+wget https://github.com/mobdevkyel/mobtrader/blob/main/bet.py
 python mobtrader.py
