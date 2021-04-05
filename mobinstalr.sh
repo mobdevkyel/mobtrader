@@ -4,9 +4,9 @@
 echo "instalador Mobtrader BOT"
 echo
 chmod +x mobtrader.sh
-pkg install python
 pkg install git
 git clone https://github.com/mobdevkyel/mobtrader
 cd mobtrader
+pkg install python
 pip install requirements.txt
-./mobtraderr.sh
+./mobtrader.sh
