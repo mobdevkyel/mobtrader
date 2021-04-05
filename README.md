@@ -11,6 +11,8 @@ chmod +x mobinstalr.sh
 
 ### INICIAR / ATUALIZAR ###
 
-./mobtraderr.sh
+cd mobtrader
+
+./mobtrader.sh
 
 ![image](https://user-images.githubusercontent.com/79609322/113521180-271bb300-956e-11eb-9dc8-171970933fc0.png)
