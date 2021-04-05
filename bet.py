@@ -1,15 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-################################################################################
-#
-#   OfusPy 2.0.5b6 - Ofuscador Python
-#   Pacheco, Matias W. <mwpacheco@outlook.es>
-#   Copyright (c) 2021 Wehaa Portal Soft.
-#   License MIT
-#
-#   WARNING! Do 'NOT' change. You may experience problems with the file.!
-#
-################################################################################
 
 import zlib, base64
 exec(zlib.decompress(base64.b64decode('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')))
