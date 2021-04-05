@@ -1,4 +1,4 @@
-Modo de uso no Termux
+# Modo de uso no Termux
 
 ### INSTALAÇÃO ###
 
