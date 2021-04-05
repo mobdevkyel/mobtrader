@@ -3,7 +3,7 @@ Modo de uso no Termux
 ### INSTALAÇÃO ###
 pkg install wget
 
-wget http://mobtrader.ga/mobinstalr.sh
+wget https://drive.google.com/file/d/1ipKXlVsbxETlzup_MKPkFbodrQlqk6mp/view?usp=sharing
 
 chmod +x mobinstalr.sh
 
