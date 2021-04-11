@@ -2,8 +2,6 @@
 
 ### INSTALAÇÃO ###
 
-pkg install wget
-
 pkg install python
 
 pkg install git
@@ -16,10 +14,6 @@ pip install requests
 
 pip install websocket-client==0.56
 
-pip install mysql-connector
-
-pip install python-dateutil
-
 pip install bs4
 
 python mobtrader.py
@@ -31,14 +25,13 @@ cd mobtrader
 python mobtrader.py
 
 ### ATUALIZAR ###
+cd
+
+rm -R mobtrader
+
+git clone https://github.com/mobdevkyel/mobtrader
 
 cd mobtrader
-
-wget -N https://github.com/mobdevkyel/mobtrader/blob/main/mobtrader.py
-
-wget -N https://github.com/mobdevkyel/mobtrader/blob/main/busca.py
-
-wget -N https://github.com/mobdevkyel/mobtrader/blob/main/melhor_payout_par.py
 
 python mobtrader.py
 
