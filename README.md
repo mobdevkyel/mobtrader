@@ -1,6 +1,6 @@
 # Modo de uso no Termux
 
-### COMO INSTALAÇÃO ###
+### COMO FAZER INSTALAÇÃO ###
 
 pkg install python
 
