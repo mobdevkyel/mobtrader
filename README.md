@@ -1,4 +1,4 @@
-# Modo de uso no Termux
+  # MODO SE USO NO CELULAR VIA TERMUX
 
 ### COMO FAZER INSTALAÇÃO ###
 
