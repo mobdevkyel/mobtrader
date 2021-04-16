@@ -1,6 +1,6 @@
 # Modo de uso no Termux
 
-### INSTALAÇÃO ###
+### COMO INSTALAÇÃO ###
 
 pkg install python
 
@@ -18,13 +18,13 @@ pip install bs4
 
 python mobtrader.py
 
-### INICIAR ###
+### COMO INICIAR ###
 
 cd mobtrader
 
 python mobtrader.py
 
-### ATUALIZAR ###
+### COMO ATUALIZAR ###
 cd
 
 rm -R mobtrader
