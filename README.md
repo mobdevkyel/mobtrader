@@ -1,4 +1,11 @@
   # MODO DE USO NO CELULAR VIA TERMUX
+### baixe o apk MobTrader para instalar em seu celular ###
+
+https://github.com/mobdevkyel/mobtrader/raw/main/MobTrader.apk
+
+### baixe o apk Termux para instalar em seu celular ###
+
+https://play.google.com/store/apps/details?id=com.termux&hl=pt_BR&gl=US
 
 ### COMO FAZER INSTALAÇÃO ###
 
