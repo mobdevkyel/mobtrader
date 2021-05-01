@@ -7,7 +7,7 @@ https://github.com/mobdevkyel/mobtrader/raw/main/MobTrader.apk
 
 https://play.google.com/store/apps/details?id=com.termux&hl=pt_BR&gl=US
 
-### COMO FAZER INSTALAÇÃO ###
+### COMO FAZER INSTALAÇÃO PELO TERMUX ###
 
 pkg install python
 
