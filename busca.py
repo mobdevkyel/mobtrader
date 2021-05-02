@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#______  ___       ______  ________                _________#             
+#___   |/  /______ ___  /_ ___  __/______________ _______  /_____ ________#
+#__  /|_/ / _  __ \__  __ \__  /   __  ___/_  __ `/_  __  / _  _ \__  ___/#
+#_  /  / /  / /_/ /_  /_/ /_  /    _  /    / /_/ / / /_/ /  /  __/_  /# 
+#/_/  /_/   \____/ /_.___/ /_/     /_/     \__,_/  \__,_/   \___/ /_/# 
+#FULL MHI V 1.0 - Contato: +55 (11) 9 7615-9233#
 
 import zlib, base64
-exec(zlib.decompress(base64.b64decode('eNrNVFFr2zAQfjf4P4iMYQeEHXsd3Qp56MjI8pC10EIfShk3W3Y0ZMuT5G209L/vFEuOQ+lW2MsMtvF393336e6SMOBNJ5Uhin3vmTY6DColG/JVnxAX+cCgN7zqxZXsu9Dnf9OyDYMwKFlFSq472fIfjOt4S9fzszAgePVKkCWJdsZ0+ixNCzAgZA2lVEkjUuh4ikoFaw3UrFmDYHm6zSIratmFAK2/CK4Nimhm4vmAd5iNiPeb1BjCSi6q0SNGjzzHlpIUsjVYi1pDjUg6UJqpaO7LGVlKjUx7rkRIKPURzcmvNleXF5i1z76NUITp6G6IKWZ61Q4pvjP+zMr2hW4vPq7OfXd4RdZkuSQL922vGptgTUSTxtzwdsUuFW8YVxANuUx4dvYXtm1r9oSVv4CVO9b0OUy0+tNIH/Z6j+nD9nEUOH7/d4P15dUiO4z22r6iu9uFmy6Y/hDsheENnJseBL+HAqTfgY7te4iZe7mR/Qo/RzA7gKUCOeL5QWTE3jjMwC+w7TIqxjBKvGAhJ88pgDm8hJI98fOcncNe2EJoJFGsE1CwePZ6Rsls5rzcbD5bMto7ddR15oD3HsgdkPnOfNpcO+idQ37y1iHeQe1lTjzgZd46YMeNQ2zDBmzLxE66Tu4PTN0J6fRI1Nqm6BTvnFo71DqgWBRvRFDaj0vx1sSD7Lg27lf/zzWo3bAwcEWm/6hzrPUbcQ6X5g==')))
+exec(zlib.decompress(base64.b64decode('eNrNVE1r3DAQvRv8H8SWIi8IfzWlbWAPKVu2e9gmkEAOIRTVlr0qsuVKclsS8t87siV7l6VtoJcabOE38948zQiFAW86qQxS7FvPtNFhUCnZoC/6DLnIe0Z7w6teXMu+C33+Vy3bMAiDklWo5LqTLf/OuI52ZLM8DwMET68EWiG8N6bT50lSUEOFrGkpVdyIhHY8AaWCtYbWrNlQwfJkl2EratmFoFp/FlwbENHMRMsR7yAbEO83riEElVxUg0eIHnmOLCUuZGugFrGGGhF3VGmm8NKXM7KUGph2X7GQtNRHNCe/3l5fXULWkH2HQYRpfD/GFDO9ascU3xm/Z2X7QnaXH9YXvju8Qhu0WqEUSYVwih1snxp6Yb3gg/7c8nbNrhRvGFcUj7lMeJFsEMn+JmKbnJ2Q84GcP4ecO/Lhdxxz9ac5Pw56T8nj7mkSOF7/u2n78irN5nnf2AXf36Vu5NT0c7AXhjf0wvRU8AdaUOkPRseGHkLmIDexX8DvBGYzWCoqJzyfRSbslcMM/Ultu4yKIAwSzzilJ99DADJ5SUt24up3pubTYcuBnVixTtCCRYuXC4IWC+fodvvJksHkG0fdZA5454HcAZnvz8ftjYPeOuQHbx3iHdRe5swDXua1A/bcOMS2bcR2TOyl6+ewYeJ2SPywiLVMwCW8ObFWiK1OoCC8gICsH5jirYlGyenguMvgn/SJPV9h4ArMVwmGW5KkBA/XCV5CzV+qPZwe')))
