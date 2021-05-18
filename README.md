@@ -38,6 +38,10 @@ cd
 
 rm -R mobtrader
 
+y
+
+y
+
 git clone https://github.com/mobdevkyel/mobtrader
 
 cd mobtrader
