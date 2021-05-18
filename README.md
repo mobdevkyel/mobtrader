@@ -23,6 +23,8 @@ pip install websocket-client==0.56
 
 pip install bs4
 
+pip install colorama
+
 python mobtrader.py
 
 ### COMO INICIAR ###
