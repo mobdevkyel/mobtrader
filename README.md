@@ -11,7 +11,11 @@ https://play.google.com/store/apps/details?id=com.termux&hl=pt_BR&gl=US
 
 pkg install python
 
+y
+
 pkg install git
+
+y
 
 git clone https://github.com/mobdevkyel/mobtrader
 
