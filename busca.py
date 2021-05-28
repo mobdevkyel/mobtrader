@@ -1,11 +1,189 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#______  ___       ______  ________                _________#             
-#___   |/  /______ ___  /_ ___  __/______________ _______  /_____ ________#
-#__  /|_/ / _  __ \__  __ \__  /   __  ___/_  __ `/_  __  / _  _ \__  ___/#
-#_  /  / /  / /_/ /_  /_/ /_  /    _  /    / /_/ / / /_/ /  /  __/_  /# 
-#/_/  /_/   \____/ /_.___/ /_/     /_/     \__,_/  \__,_/   \___/ /_/# 
-#FULL MHI V 1.0 - Contato: +55 (11) 9 7615-9233#
+import requests
+import urllib 
+from bs4 import BeautifulSoup
+import os, time, sys, json
 
-import zlib, base64
-exec(zlib.decompress(base64.b64decode('eNrNV21v2zYQ/h4g/4FIMNCeBb8oHbYFXYF0Tp0MSxwkGTIgCwrGoh22kqiSctbO8Kd92A/rH9sd3yTZdZZ2GbAWbsmHx3vn3UlkhVQlUfzdnOtSb28JC8xVmopbsr01VTIjt/oZcQcvOZuXYjpPL+S8CORSR6QUGY+I/gDLN1rm21vbW/k844ql5AfSx23BlEhYwmFPKcF9opgMO64mPC/99ur41C9Hg7CK/ero+NIvfxe5XcJ6FkhngfROBKasnJslapPwKUmELmQu7rnQrZNo1N7f3iLwB6xHsruyLPR+rycnrGSpnLFEqu5EZj1WiB7YjeqyGc9GLOWD3snAsMX7k5Rp/ToVGgVrXrbaFi+AGhDv7e4MjkCWO9XgUThteLiFV0BmXoKsCFXK0i74UXNF215cKROp4Sa6vZtKlujGNcd+eHxxNgYqQ31NgQnX9MaeKV7OVW5JvG+80Qo9Ex2en48vIodJ76hZKm8hvi7ODSwEewXFkDchG/cGhsFvAKNBcxs3jzEbGgDmRAOYNRnM4sYWUqSxhzyx+91CibxsOQOdJ0VwDiQv5LZzhjsarWKGL6QIhojW0uZK5EN+puDZCMVok95m4PThFFwYrsve4mRZu85Tr8TgEUqY3P0vhMePFB4/jXAjuB6VuvGf4/2nkh//g/xVxz+V3L1HyI3/nVxfd/7X5c6roPqDquhd4n/05tq9Z1f9bFdwJPMUGhk7KOcsFX+wCZO+Rlb9yTC97t/4EsFUAAcV6HqbxeOKScD2HFay9wwdV6oWHAOLRxTshoW+qTZV2KRBlQrIG2R3FS9SNuGtna92IrKz48TbBowafeuumj6MwPceiB0w8M6wbRmh7xxiuzMiXoOZZ/PMA57NNw6wHRsR76OUl4rpM4d6aZhy7LU9g6PrmyovXRjC2T2HJAXfkA6h8LfjgHgV2LtpFP6JBKc7h+zec5UAq4BDxs1hTRHntF0jy/gGuoyndyyQejWnUhEB9N7M2hOum9hlRcHzpCXc9US+EU5Og8yJGwY5U2EybBPhVSAcmceyiW40qBHGDxHGgRAS4vgByiNDGNrqWu/EbDJmdiynjlER/41r9W+t233q2tqFePOFWgbZPJjS4fgnNGSBVMvf8lfHvx7gFl0LW/M0FqAbrmO7jmFt38MCeS5p29ev0szEyKmD9ztwD35xx4oONMMqvgrclbTwRs8cfT3o9yPSb9dZvqqibMmR92by0aBBDDo8QBuv0MabaY/M462I0ag16rUq5ry88OVsSXpkYUvYEj14uSRDrhSw0bQawy7JCyPJTKdtwvLEz6LkOQS43gtDIF/+cvHjwelwTE4Ofz4an5Px2ce/Pv45JsNDcnh6eX4wPPAC8I9n14EEq9AHZ+NG4lT9TuoufByVPGvRSaopqg9QzrBWQIvOSwq5qTmBU85UzUivwoumQW5mpzT6jJ9/A5qvc/Kuj1zriHzLi7AXRFD+4RdH+EAiLOsRVHL4AQL1Oqpm5uY8txpp45snkwg2ybfOqt1PRMVHsp5xu18WiZBAJh5ynyxcYJakytp66uyeQLGXrt9/uZ1rKWzZttfwKtW8xfgZB01HTMUEJ5mW/2y7N1OIy+dbaT6PM3kLhTnhCvbOoQn4E98eTbjm+b1M7zkMhXQfpsUFUC1pRM2AtE+ol6Losv4JvYNTJQyVgXk3+1BAR4TJLRU5N/MlcOq9sfMmtMrirtipkgWQoj5BFlIbOyOjWzt8vEqVS0Oni27J35e18aAOd3WRCug6kQ+ToYhro0PVifFktQ/Hqx0YzNZmxrLHYfYC495WqJ9zMj2rQJx1whPHgDw3lcxybNckh9II16GjLJC3ybMvyGM/1YSHQk8GNOpHrib/DSgZ/y4=')))
+numeral = 0
+
+paridade = '' 
+padrao = '' 
+percent = '' 
+WIN = '' 
+G1 = '' 
+G2 = '' 
+HIT = '' 
+win = ''  
+g1 = '' 
+g2 = '' 
+hit = '' 
+atu = ''
+
+def disponiveis(M,G):
+
+    if G == 0:
+        gale = 'porcentagemWinDePrimeira'
+        url = f'https://ocatalogador.com/api/{gale}/{M}'
+    elif G == 1:
+        gale = 'porcentagemGale1'
+        url = f'https://ocatalogador.com/api/{gale}/{M}'
+    elif G == 2:
+        gale = 'porcentagemGale2'
+        url = f'https://ocatalogador.com/api/{gale}/{M}'
+
+    
+
+    class_list = set()
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+
+    todos = json.loads(page.content)
+    DISPO = todos['pares']
+    return DISPO
+
+def catalogar(M,G,ERROS,catalogo):
+    global numeral
+    global paridade 
+    global padrao
+    global percent
+    global WIN 
+    global G1
+    global G2 
+    global HIT 
+    global win 
+    global g1
+    global g2
+    global hit
+    global atu
+    #print(numeral)
+    if catalogo == 0:
+        if G == 0:
+            gales = 'porcentagemWinDePrimeira'
+            url = f'https://ocatalogador.com/api/{gales}/{M}'
+        elif G == 1:
+            gales = 'porcentagemGale1'
+            url = f'https://ocatalogador.com/api/{gales}/{M}'
+        elif G == 2:
+            gales = 'porcentagemGale2'
+            url = f'https://ocatalogador.com/api/{gales}/{M}'
+    elif catalogo == 1:
+        gales = 'porcentagemWinDePrimeira'
+        url = f'https://ocatalogador.com/api/{gales}/{M}'
+    elif catalogo == 2:
+        gales = 'porcentagemGale1'
+        url = f'https://ocatalogador.com/api/{gales}/{M}'
+    elif catalogo == 3:
+        gales = 'porcentagemGale2'
+        url = f'https://ocatalogador.com/api/{gales}/{M}'
+
+
+    
+
+    class_list = set()
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+
+    todos = json.loads(page.content)
+    
+    par01 = todos['Todos'][numeral]
+    atu = todos['ultimaAtualizacao']
+    percent = par01[0]
+    #par = par01[1]
+    #padrao = par01[2]
+    per = par01[3]
+    taxa = str(per[1])
+    DISPO = todos['pares']
+        
+    paridade = par01[1]
+    padrao = par01[2]
+    porcentagem = taxa.replace("%", "")
+    WIN = per[7]
+    G1 = per[9]
+    G2 = per[10]
+    HIT = per[8]
+    win = per[2]
+    g1 = per[4]
+    g2 = per[5]
+    hit = per[3]
+    letrasP = per[0]
+    lista_letras = []
+    
+
+
+    #letras = velas[1] + ' ' + velas[2] + ' ' + velas[3]
+    #print(cores)
+    #verd = int(cores.count('verde'))
+    #verme = int(cores.count('vermelha'))
+    
+
+    for i in letrasP:
+        lista_letras.append(i)
+    doji = int(lista_letras.count('D'))
+    fixa = int(lista_letras.count('W'))
+    G01 = int(lista_letras.count('G1'))
+    G02 = int(lista_letras.count('G2'))
+    HITI = int(lista_letras.count('H'))
+
+    if G == 0:
+        T = doji + HITI + G01 + G02
+    elif G == 1:
+        T = doji + HITI + G02
+    elif G == 2:
+        T = doji + HITI
+
+
+    #print(f'DOJI = {doji}\nFIXA = {fixa}\nG1 = {G01}\nG2 = {G02}\nHIT = {HITI}')
+    total = doji+fixa+G01+G02+HITI
+    totalDoji = int(round(doji/total*100, 0))
+    totalFixa = int(round(fixa/total*100, 0))
+    totalG1 = int(round(G01/total*100, 0))
+    totalG2 = int(round(G02/total*100, 0))
+    totalHit = int(round(HITI/total*100, 0))
+
+        
+    print(f'{paridade} / {padrao} = {T} Derrotas')
+    if T > int(ERROS) and numeral <= 23:
+        #print(f'BUSCANDO MELHOR OPÇÃO DE ENTRADA')
+        numeral += 1
+        catalogar(M,G,ERROS,catalogo)
+    #print(url)
+    os.system('cls' if os.name == 'nt' else 'clear')
+    if numeral > 23:
+        return '', '', '', '', '', '', '', '', '', '', '', ''
+    else:
+        return paridade, padrao, percent, WIN, G1, G2, HIT, win, g1, g2, hit, atu
+    
+            
+        
+        #return paridade, padrao, percent, WIN, G1, G2, HIT, win, g1, g2, hit, atu, 'ok'
+    #catalogar(M,G,ERROS)
+     
+
+        #os.system('cls' if os.name == 'nt' else 'clear')
+    #print(f'numero: {numeral} {paridade}')
+        #Melhor = paridade, padrao, percent, WIN, G1, G2, HIT, win, g1, g2, hit
+        #print(Melhor)
+        #print(url)
+        
+
+def verificacao():
+    ver = 1
+    bot = 'mobtraderbot'
+    data = {'desenvolvedor': f'{bot}','acao': 'verificar'}
+    url = "http://mobtrader.mypressonline.com/bot/jogadores.php"    
+    resp = requests.post(url, data)
+    retorno = resp.text
+    lista = resp.text.split(',')
+    lista2 = []
+    for i in lista:
+        lista2.append(i)
+    versao = lista2[1]
+    link = lista2[4]
+    msg = lista2[5]
+
+    if ver < int(versao):
+        print(f'{msg}\n{link}')
+#os.system('cls' if os.name == 'nt' else 'clear')
+#print(catalogar('M1',0,0))
+
+
+
