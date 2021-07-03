@@ -4,7 +4,6 @@ clear
 then
     Menu() {
         clear
-        
         echo "=========================="
         echo "     Mobtrader BOT    "
         echo "=========================="
