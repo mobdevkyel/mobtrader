@@ -1,4 +1,5 @@
 #!/bin/bash
+yes| termux-setup-storage > /dev/null 2>&1
 echo "Opa!!!"
 clear
 then
