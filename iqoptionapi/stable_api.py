@@ -4,6 +4,7 @@ import iqoptionapi.constants as OP_code
 import iqoptionapi.country_id as Country
 import threading
 import time
+import json
 import logging
 import operator
 import iqoptionapi.global_value as global_value
@@ -22,7 +23,7 @@ def nested_dict(n, type):
 
 
 class IQ_Option:
-    __version__ = "6.8.9.1"
+    __version__ = "7.0.0"
 
     def __init__(self, email, password, active_account_type="PRACTICE"):
         self.size = [1, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800,
@@ -76,7 +77,7 @@ class IQ_Option:
         self.SESSION_HEADER = header
         self.SESSION_COOKIE = cookie
 
-    def connect(self):
+    def connect(self, sms_code=None):
         try:
             self.api.close()
         except:
@@ -86,6 +87,14 @@ class IQ_Option:
         self.api = IQOptionAPI(
             "iqoption.com", self.email, self.password)
         check = None
+
+        # 2FA--
+        if sms_code is not None:
+            self.api.setTokenSMS(self.resp_sms)
+            status, reason = self.api.connect2fa(sms_code)
+            if not status:
+                return status, reason
+        # 2FA--
 
         self.api.set_session(headers=self.SESSION_HEADER,
                              cookies=self.SESSION_COOKIE)
@@ -129,14 +138,27 @@ class IQ_Option:
             # self.get_balance_id()
             return True, None
         else:
+            if json.loads(reason)['code'] == 'verify':
+                response = self.api.send_sms_code(json.loads(reason)['token'])
+
+                if response.json()['code'] != 'success':
+                    return False, response.json()['message']
+
+                # token_sms
+                self.resp_sms = response
+                return False, "2FA"
             return False, reason
 
     # self.update_ACTIVES_OPCODE()
 
+    def connect_2fa(self, sms_code):
+        return self.connect(sms_code=sms_code)
+
     def check_connect(self):
         # True/False
-
-        if global_value.check_websocket_if_connect == 0:
+        # if not connected, sometimes it's None, sometimes its '0', so
+        # both will fall on this first case
+        if not global_value.check_websocket_if_connect:
             return False
         else:
             return True
@@ -266,16 +288,17 @@ class IQ_Option:
         binary_data = self.get_all_init_v2()
         binary_list = ["binary", "turbo"]
         for option in binary_list:
-            for actives_id in binary_data[option]["actives"]:
-                active = binary_data[option]["actives"][actives_id]
-                name = str(active["name"]).split(".")[1]
-                if active["enabled"] == True:
-                    if active["is_suspended"] == True:
-                        OPEN_TIME[option][name]["open"] = False
+            if option in binary_data:
+                for actives_id in binary_data[option]["actives"]:
+                    active = binary_data[option]["actives"][actives_id]
+                    name = str(active["name"]).split(".")[1]
+                    if active["enabled"] == True:
+                        if active["is_suspended"] == True:
+                            OPEN_TIME[option][name]["open"] = False
+                        else:
+                            OPEN_TIME[option][name]["open"] = True
                     else:
-                        OPEN_TIME[option][name]["open"] = True
-                else:
-                    OPEN_TIME[option][name]["open"] = active["enabled"]
+                        OPEN_TIME[option][name]["open"] = active["enabled"]
 
         # for digital
         digital_data = self.get_digital_underlying_list_data()["underlying"]
@@ -402,13 +425,14 @@ class IQ_Option:
     def get_balance_mode(self):
         # self.api.profile.balance_type=None
         profile = self.get_profile_ansyc()
-        for balance in profile["balances"]:
+        for balance in profile.get("balances"):
             if balance["id"] == global_value.balance_id:
                 if balance["type"] == 1:
                     return "REAL"
                 elif balance["type"] == 4:
                     return "PRACTICE"
-                elif balance["type"]==2:
+
+                elif balance["type"] == 2:
                     return "TOURNAMENT"
 
     def reset_practice_balance(self):
@@ -451,18 +475,17 @@ class IQ_Option:
                 real_id = balance["id"]
             if balance["type"] == 4:
                 practice_id = balance["id"]
+
             if balance["type"] == 2:
                 tournament_id = balance["id"]
-      
+
         if Balance_MODE == "REAL":
             set_id(real_id)
-            
+
         elif Balance_MODE == "PRACTICE":
-            
             set_id(practice_id)
 
         elif Balance_MODE == "TOURNAMENT":
-
             set_id(tournament_id)
 
         else:
@@ -474,19 +497,20 @@ class IQ_Option:
     # ________________________self.api.getcandles() wss________________________
 
     def get_candles(self, ACTIVES, interval, count, endtime):
-        request_id = ''
+        self.api.candles.candles_data = None
         while True:
             try:
-                request_id = self.api.getcandles(OP_code.ACTIVES[ACTIVES], interval, count, endtime)
-                while self.check_connect and request_id not in self.api.candles:
+                self.api.getcandles(
+                    OP_code.ACTIVES[ACTIVES], interval, count, endtime)
+                while self.check_connect and self.api.candles.candles_data == None:
                     pass
-                if request_id in self.api.candles:
+                if self.api.candles.candles_data != None:
                     break
             except:
                 logging.error('**error** get_candles need reconnect')
                 self.connect()
 
-        return self.api.candles.pop(request_id).candles_data
+        return self.api.candles.candles_data
 
     #######################################################
     # ______________________________________________________
@@ -700,7 +724,6 @@ class IQ_Option:
 
 ##############################################################################################
 
-
     def check_binary_order(self, order_id):
         while order_id not in self.api.order_binary:
             pass
@@ -750,7 +773,7 @@ class IQ_Option:
         while True:
             result = self.get_optioninfo_v2(10)
             if result['msg']['closed_options'][0]['id'][0] == id_number and result['msg']['closed_options'][0]['id'][0] != None:
-                return result['msg']['closed_options'][0]['win'], (result['msg']['closed_options'][0]['win_amount']-result['msg']['closed_options'][0]['amount'] if result['msg']['closed_options'][0]['win'] != 'equal' else 0)
+                return result['msg']['closed_options'][0]['win'], (result['msg']['closed_options'][0]['win_amount'] - result['msg']['closed_options'][0]['amount'] if result['msg']['closed_options'][0]['win'] != 'equal' else 0)
                 break
             time.sleep(1)
 
@@ -999,13 +1022,14 @@ class IQ_Option:
         # And need to be on GMT time
 
         # Type - P or C
+        action = action.lower()
         if action == 'put':
             action = 'P'
         elif action == 'call':
             action = 'C'
         else:
             logging.error('buy_digital_spot active error')
-            return -1
+            return -1, None
         # doEURUSD201907191250PT5MPSPT
         timestamp = int(self.api.timesync.server_timestamp)
         if duration == 1:
@@ -1023,14 +1047,24 @@ class IQ_Option:
             exp).strftime("%Y%m%d%H%M"))
         instrument_id = "do" + active + dateFormated + \
                         "PT" + str(duration) + "M" + action + "SPT"
+        # self.api.digital_option_placed_id = None
 
-        id = self.api.place_digital_option(instrument_id, amount)
-        while id not in self.api.digital_option_placed_id:
+        request_id = self.api.place_digital_option(instrument_id, amount)
+
+        while self.api.digital_option_placed_id.get(request_id) == None:
             pass
-        if isinstance(self.api.digital_option_placed_id[id], int):
-            return True, self.api.digital_option_placed_id[id]
+        digital_order_id = self.api.digital_option_placed_id.get(request_id)
+        if isinstance(digital_order_id, int):
+            return True, digital_order_id
         else:
-            return False, self.api.digital_option_placed_id[id]
+            return False, digital_order_id
+
+        # while self.api.digital_option_placed_id == None:
+        #     pass
+        # if isinstance(self.api.digital_option_placed_id, int):
+        #     return True, self.api.digital_option_placed_id
+        # else:
+        #     return False, self.api.digital_option_placed_id
 
     def get_digital_spot_profit_after_sale(self, position_id):
         def get_instrument_id_to_bid(data, instrument_id):
@@ -1132,13 +1166,14 @@ class IQ_Option:
             return None
 
     def buy_digital(self, amount, instrument_id):
-        id = self.api.place_digital_option(instrument_id, amount)
+        self.api.digital_option_placed_id = None
+        self.api.place_digital_option(instrument_id, amount)
         start_t = time.time()
-        while id not in self.api.digital_option_placed_id:
+        while self.api.digital_option_placed_id == None:
             if time.time() - start_t > 30:
                 logging.error('buy_digital loss digital_option_placed_id')
                 return False, None
-        return True, self.api.digital_option_placed_id[id]
+        return True, self.api.digital_option_placed_id
 
     def close_digital_option(self, position_id):
         self.api.result = None
@@ -1501,3 +1536,63 @@ class IQ_Option:
             self.api.Get_Users_Availability(user_id)
             time.sleep(0.2)
         return self.api.users_availability
+
+    def get_digital_payout(self, active):
+        self.api.digital_payout = None
+        asset_id = OP_code.ACTIVES[active]
+
+        self.api.subscribe_digital_price_splitter(asset_id)
+
+        while self.api.digital_payout is None:
+            pass
+
+        self.api.unsubscribe_digital_price_splitter(asset_id)
+
+        return self.api.digital_payout
+
+    def logout(self):
+        self.api.logout()
+
+    def buy_digital_spot_v2(self, active, amount, action, duration):
+        action = action.lower()
+
+        if action == 'put':
+            action = 'P'
+        elif action == 'call':
+            action = 'C'
+        else:
+            logging.error('buy_digital_spot_v2 active error')
+            return -1, None
+
+        timestamp = int(self.api.timesync.server_timestamp)
+
+        if duration == 1:
+            exp, _ = get_expiration_time(timestamp, duration)
+        else:
+            now_date = datetime.fromtimestamp(
+                timestamp) + timedelta(minutes=1, seconds=30)
+
+            while True:
+                if now_date.minute % duration == 0 and time.mktime(now_date.timetuple()) - timestamp > 30:
+                    break
+                now_date = now_date + timedelta(minutes=1)
+
+            exp = time.mktime(now_date.timetuple())
+
+        date_formated = str(datetime.utcfromtimestamp(exp).strftime("%Y%m%d%H%M"))
+        active_id = str(OP_code.ACTIVES[active])
+        instrument_id = "do" + active_id + "A" + \
+            date_formated[:8] + "D" + date_formated[8:] + \
+            "00T" + str(duration) + "M" + action + "SPT"
+        logger = logging.getLogger(__name__)
+        logger.info(instrument_id)
+        request_id = self.api.place_digital_option_v2(instrument_id, active_id, amount)
+
+        while self.api.digital_option_placed_id.get(request_id) is None:
+            pass
+
+        digital_order_id = self.api.digital_option_placed_id.get(request_id)
+        if isinstance(digital_order_id, int):
+            return True, digital_order_id
+        else:
+            return False, digital_order_id
