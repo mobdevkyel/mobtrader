@@ -39,6 +39,12 @@ class WebsocketClient(object):
                     del dict[key1][key2][sorted(
                         dict[key1][key2].keys(), reverse=False)[0]]
 
+    def api_dict_clean(self, obj):
+        if len(obj) > 5000:
+            for k in obj.keys():
+                del obj[k]
+                break
+
     def on_message(self, message):  # pylint: disable=unused-argument
         """Method to process websocket messages."""
         global_value.ssl_Mutual_exclusion = True
@@ -157,7 +163,7 @@ class WebsocketClient(object):
 
         elif message["name"] == "candles":
             try:
-                self.api.addcandles(message["request_id"], message["msg"]["candles"])
+                self.api.candles.candles_data = message["msg"]["candles"]
             except:
                 pass
         # Make sure ""self.api.buySuccessful"" more stable
@@ -203,6 +209,7 @@ class WebsocketClient(object):
             elif message["microserviceName"] == "portfolio" and message["msg"]["source"] == "binary-options":
                 self.api.order_async[int(
                     message["msg"]["external_id"])][message["name"]] = message
+                # print(message)
 
         elif message["name"] == "option-opened":
             self.api.order_async[int(
@@ -244,6 +251,7 @@ class WebsocketClient(object):
 
         elif message["name"] == "technical-indicators":
             if message["msg"].get("indicators") != None:
+                self.api_dict_clean(self.api.technical_indicators)
                 self.api.technical_indicators[message["request_id"]
                                               ] = message["msg"]["indicators"]
             else:
@@ -275,10 +283,16 @@ class WebsocketClient(object):
         elif message["name"] == "auto-margin-call-changed":
             self.api.auto_margin_call_changed_respond = message
         elif message["name"] == "digital-option-placed":
-            try:
-                self.api.digital_option_placed_id[message["request_id"]] = message["msg"]["id"]
-            except:
-                self.api.digital_option_placed_id[message["request_id"]] = message["msg"]
+            if message["msg"].get("id") != None:
+                self.api_dict_clean(self.api.digital_option_placed_id)
+                self.api.digital_option_placed_id[message["request_id"]
+                                                  ] = message["msg"]["id"]
+            else:
+                self.api.digital_option_placed_id[message["request_id"]] = {
+                    "code": "error_place_digital_order",
+                    "message": message["msg"]["message"]
+                }
+
         elif message["name"] == "result":
             self.api.result = message["msg"]["success"]
         elif message["name"] == "instrument-quotes-generated":
@@ -320,14 +334,14 @@ class WebsocketClient(object):
             id = message["msg"]["id"]
             self.api.socket_option_closed[id] = message
         elif message["name"] == "live-deal-binary-option-placed":
-            name = message["name"]
+            # name = message["name"]
             active_id = message["msg"]["active_id"]
             active = list(OP_code.ACTIVES.keys())[
                 list(OP_code.ACTIVES.values()).index(active_id)]
             _type = message["msg"]["option_type"]
             try:
-                self.api.live_deal_data[name][active][_type].appendleft(
-                    message["msg"])
+                # self.api.live_deal_data[name][active][_type].appendleft(
+                #     message["msg"])
                 if hasattr(self.api.binary_live_deal_cb, '__call__'):
                     cb_data = {
                         "active": active,
@@ -340,14 +354,14 @@ class WebsocketClient(object):
             except:
                 pass
         elif message["name"] == "live-deal-digital-option":
-            name = message["name"]
+            # name = message["name"]
             active_id = message["msg"]["instrument_active_id"]
             active = list(OP_code.ACTIVES.keys())[
                 list(OP_code.ACTIVES.values()).index(active_id)]
             _type = message["msg"]["expiration_type"]
             try:
-                self.api.live_deal_data[name][active][_type].appendleft(
-                    message["msg"])
+                # self.api.live_deal_data[name][active][_type].appendleft(
+                #     message["msg"])
                 if hasattr(self.api.digital_live_deal_cb, '__call__'):
                     cb_data = {
                         "active": active,
@@ -363,14 +377,23 @@ class WebsocketClient(object):
         elif message["name"] == "leaderboard-deals-client":
             self.api.leaderboard_deals_client = message["msg"]
         elif message["name"] == "live-deal":
-            name = message["name"]
+            # name = message["name"]
             active_id = message["msg"]["instrument_active_id"]
             active = list(OP_code.ACTIVES.keys())[
                 list(OP_code.ACTIVES.values()).index(active_id)]
             _type = message["msg"]["instrument_type"]
             try:
-                self.api.live_deal_data[name][active][_type].appendleft(
-                    message["msg"])
+                # self.api.live_deal_data[name][active][_type].appendleft(
+                #     message["msg"])
+                if hasattr(self.api.live_deal_cb, '__call__'):
+                    cb_data = {
+                        "active": active,
+                        **message["msg"]
+                    }
+                    livedeal = Thread(target=self.api.live_deal_cb,
+                                      kwargs=(cb_data))
+                    livedeal.daemon = True
+                    livedeal.start()
             except:
                 pass
 
@@ -380,6 +403,10 @@ class WebsocketClient(object):
             self.api.leaderboard_userinfo_deals_client = message["msg"]
         elif message["name"] == "users-availability":
             self.api.users_availability = message["msg"]
+        elif message["name"] == "client-price-generated":
+            ask_price = [d for d in message["msg"]["prices"] if d['strike'] == 'SPT'][0]['call']['ask']
+            self.api.digital_payout = int(((100-ask_price)*100)/ask_price)
+            self.api.client_price_generated = message["msg"]
         else:
             pass
         global_value.ssl_Mutual_exclusion = False
