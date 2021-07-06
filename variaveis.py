@@ -1,11 +1,177 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#______  ___       ______  ________                _________#             
-#___   |/  /______ ___  /_ ___  __/______________ _______  /_____ ________#
-#__  /|_/ / _  __ \__  __ \__  /   __  ___/_  __ `/_  __  / _  _ \__  ___/#
-#_  /  / /  / /_/ /_  /_/ /_  /    _  /    / /_/ / / /_/ /  /  __/_  /# 
-#/_/  /_/   \____/ /_.___/ /_/     /_/     \__,_/  \__,_/   \___/ /_/# 
-#FULL MHI V 1.0 - Contato: +55 (11) 9 7615-9233#
+from colorama import Fore, Style
 
-import zlib, base64
-exec(zlib.decompress(base64.b64decode('eNptVkuP2zYQPleA/4OAHtIARbH2NrntwevVOkZlr7pWNi2KQphItM2CErUk5cT59R2+JEpr+6DhN8N5fiP7IHgdl5xxATXEtG65UPEjF+TXeK8ujMyiWfTznfnEZyIk8PjOfWYRAvFdPP/YmwyfeJ0+3S83+3gMz6JMEIU+TIzf7tPl6o9Z9EJETdiph5+TBwNWxCPr5yTZzaJlDYKw3u7vJE2fviD8o2ODy8/JLNrCkTQKEHznPb6bRasLNFOINj+gWDEQ/KomkWX3RuXz9fcmuopcU7jcveqnkQ4LuHbHlXE9PyzmqmJHjoKqiadNg8NSZGL6TCRRiJlRI7ZP8mKZpnro6Qrxm1l0hObEJcoHxkH9cvN+FrVElDCGQHXARkjJXf8xzFfT9sABCFqBma5Wt1AJ4P7ARalrPpLaJvBls7PCeu6eC/v8tMmt8I02LldncXQWJ6qssHXOeVv2gV47aJRPY8gNp6RocwRG7NXHdKQ+L9z1840XfndCeas5CEzi0txDU0JBG1rSSV8afuaD3T7PwsNTlj7t9zawPvW13y93q+Vmt1ltlqlFsONWUK2LL6lUpAaLtmZAGmb86CT6ygtoqTu9+PY9JM9WeHHP3dk+BZEuButKK5imWVECq3wvS1BOqmlzgoJhKjqRf/5F3QnOZOfU+vuSuwprM4u5cS8Mx/TsiCANds1qWkH+64Ks5oFFBUPrTvj+CtqtQxnoL3cgEknrWrPMh3t5ZqixnX/QW5h/7tNseO3pKQmW5P3UQH2AkOHIWGETMjcUbxmXMjhajuoTdIqjdx6k6Q0167x8AMWFpxhhID2HQdEzDDSWXPB1cA/H3YdCEshvXFT+ZlnyrlGFurS+ttFwKgxzccNFr9LOB0/JzlEF5wwYACouCrcibvw9jBRs+RW85qTvz7rP7+KWHEp8pVqRCMuFhWZxxzwvnC/u6a1fGcWBfuejl0gu4CvYXxILisDkz/zhkX4H55C3RUUOyJk+La45MnR2+G4/bQbK4GExOt2OdcUWKBcUxjZXUMpOWMKWNtfxqX1mS97UWFRAYC5wTYs1qYkpzMMa3HL52hFFqG2oU63CfPWvmMA+FLdvAi3Gdb1NiNqflCAZvBsuRTbeimyyFtl4LzLPfpxNZhjvFbb9N1ZaDOJtgAbpee0UmvY7BEeWk05raNpmg13psfE5amrgcBEkPAk5bEIWrELmd0HLQbvNjY757GQHhVlk17BOElHQyu0NozgGrwq3UNGaHPBvn9ep8e7kye4BxVx05H99HchV')))
+#====== versao ========
+ver = 16
+#================ GLOBAIS ==============
+Preto = Fore.BLACK
+Vermelho = Fore.RED
+Verde = Fore.GREEN
+Amarelo = Fore.YELLOW
+Azul = Fore.BLUE
+Magenta = 'Fore.RED'
+Cyan = 'Fore.RED'
+Cinza_Claro = 'Fore.RED'
+Cinza_Escuro = 'Fore.RED'
+Vermelho_Claro ='Fore.RED'
+Verde_Claro ='Fore.RED'
+Amarelo_Claro =	'Fore.RED'
+Azul_Claro ='Fore.RED'
+Magenta_Claro = 'Fore.RED'
+Cyan_Claro = 'Fore.RED'
+Negrito ='Fore.RED'
+Inverte = 'Fore.RED'
+Reset = Style.RESET_ALL
+
+LC = 0
+ganhos = float(0)
+percas = float(0)
+atual = float(0)
+conta = ''
+ban = float(0)
+paridade = ''
+padrao = ''
+porcentagem = 0
+WIN = 0
+G1 = 0
+G2 = 0
+HIT = 0
+win = 0
+g1 = 0
+g2 = 0
+hit = 0
+M = ''
+opcao = ''
+quantidade = float(0)
+martingale = 0
+FL = float(0)
+v2 = ''
+v0 = ''
+v4 = ''
+c3 = False
+Banca_inicial = float(0)
+novo = False
+STP = False
+STOPLOSS = 0
+STOPWIN = 0
+BANCAINICIAL = 0
+atu = 0
+tp = ''
+sistema = 0
+pas = ''
+log = ''
+iqo_api = ''
+VIT = 0
+DER = 0
+VR = 0
+Nv = 0
+resu = 0
+luc = 0
+quant = 0
+saldo = ''
+cat = ''
+minha_lista = []
+chaveN = ''
+
+
+VTS = 0
+mao = 1
+lucros = 0
+gerencia = 1
+preju = 0
+Nv = 10
+gerenciada = False
+hora_inicial = ''
+hora_X = ''
+espera = 0
+AT = False
+TPM = 'M15'
+ATU = ''
+
+nome = ''
+senha = ''
+email = ''
+conta = ''
+entrada = ''
+stoploss = ''
+stopwin = ''
+autonomo = ''
+horas = ''
+gales = ''
+fator = ''
+velasM = ''
+ativacao = ''
+soroGales = ''
+login = ''
+password = ''
+account_type = ''
+chaveN = ''
+delay = 0
+sorosmao = 0
+ENT = 0
+catalogador_gale = ''
+catalogador_tempo = ''
+catalogador_moeda = ''
+G = ''
+paym = 0
+acerm = 0
+erros = 20
+pulos = 0
+catalogo = 0
+padrao_fixo = ''
+padraoTrabalho = ''
+parfixo = ''
+QTDFixas = 0
+op_definida = ''
+operacao = ''
+
+
+
+
+
+MHI = False
+MHI2 = False
+MHI3 = False
+MHI2_Maioria = False
+MHI3_Maioria = False
+Milhao_Minoria = False
+Milhao_Maioria = False
+Padrao_Impar = False
+Torres_Gemeas = False
+Tres_Mosqueteiros = False
+C3 = False
+Melhor_de_3 = False
+Padrao_23 = False
+MHI_Maioria = False
+inverter = False
+
+Pconta = ''
+Pentrada = ''
+Pstoploss = ''
+Pstopwin = ''
+Pgales = 0
+Pvelas = ''
+PMHI = 0
+PMHI2 = 0
+PMHI3 = 0
+PMHI2_Maioria = 0
+PMHI3_Maioria = 0
+PMilhao_Minoria = 0
+PMilhao_Maioria = 0
+PPadrao_Impar = 0
+PTorres_Gemeas = 0
+PTres_Mosqueteiros = 0
+PMelhor_de_3 = 0
+PPadrao_23 = 0
+PMHI_Maioria = 0
+Ppaym = 0
+Pacerm = 0
+Perros = 0
+Pinverter = 0
+Ppular = 0
+sua_chave = ''
+user_id = 0
+cliente = ''
+moeda = ''
+timeframe = ''
+trabalho = ''
+TEND = True

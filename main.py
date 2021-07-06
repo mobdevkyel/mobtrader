@@ -1,11 +1,6138 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#______  ___       ______  ________                _________#             
-#___   |/  /______ ___  /_ ___  __/______________ _______  /_____ ________#
-#__  /|_/ / _  __ \__  __ \__  /   __  ___/_  __ `/_  __  / _  _ \__  ___/#
-#_  /  / /  / /_/ /_  /_/ /_  /    _  /    / /_/ / / /_/ /  /  __/_  /# 
-#/_/  /_/   \____/ /_.___/ /_/     /_/     \__,_/  \__,_/   \___/ /_/# 
-#FULL MHI V 1.0 - Contato: +55 (11) 9 7615-9233#
+from iqoptionapi.stable_api import IQ_Option
+from iqoptionapi.constants import ACTIVES
+import iqoptionapi.country_id as Pais
+from busca import *
+from variaveis import *
+from melhor_payout_par import *
+import time, json, logging, configparser, os, csv, sys, io
+from threading import Thread
+from datetime import datetime, date, timedelta
+from urllib.request import urlretrieve
 
-import zlib, base64
-exec(zlib.decompress(base64.b64decode('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')))
+def buscar():
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global ganhos
+    global percas
+    global atual
+    global c3
+    global opcao
+    global tp
+    global hora_inicial
+    global hora_X
+    global espera
+    global ATU
+    global velasM
+    global gales
+    global MHI
+    global MHI2
+    global MHI3
+    global MHI2_Maioria
+    global MHI3_Maioria
+    global Milhao_Minoria
+    global Milhao_Maioria
+    global Padrao_Impar
+    global Torres_Gemeas
+    global Tres_Mosqueteiros
+    global C3
+    global Melhor_de_3
+    global Padrao_23
+    global MHI_Maioria
+    global autonomo
+    global gerenciada
+    global martingale
+    global FL
+    global catalogador_gale
+    global catalogador_tempo
+    global catalogador_moeda
+    global paym
+    global acerm
+    global inverter
+    global erros
+    global VIT
+    global DER
+    global catalogo
+    global operacao
+    
+    
+
+    paridade = ''
+    padrao = ''
+    porcentagem = 0
+    WIN = 0
+    G1 = 0
+    G2 = 0
+    HIT = 0
+    win = 0
+    g1 = 0
+    g2 = 0
+    hit = 0
+    opcao = ''
+    ATU = ''
+    
+    status = verificacao()
+    if status != '':
+        print(staus)
+        sys.exit()
+
+    else:
+              
+        if autonomo == 'nao':
+            hora_X = '00:00:00'
+        
+        
+        os.system('cls' if os.name == 'nt' else 'clear')
+        while True:
+            if velasM == 'M1':
+                minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+                entrar = True if (minutos >= 4.25 and minutos <= 5) or minutos >= 9.25 else False
+                grana = 'R$ {:,.2f}'.format(atual)
+                perdeu = DER
+                ganhou = VIT
+                
+
+                print(f'{Verde} LOSS: {perdeu} / WIN: {ganhou} = Lucros: {grana} {Reset} - ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+
+                if entrar:
+                    paridade, padrao, porcentagem, WIN, G1, G2, HIT, ATU = catalogar(str(velasM),int(gales),int(catalogo))
+                    print(paridade)
+                    if paridade == '':
+                        time.sleep(10)
+                        buscar()
+                        break 
+                    
+                    else:
+                                                    
+                        if int(porcentagem) < int(acerm):
+                            print(f'PADRÃO LOCALIZADO {padrao} - {paridade} = {porcentagem}\nFAREI NOVA BUSCA, PORCENTAGEM MINIMA DE {acerm}%')
+                            time.sleep(10)
+                            buscar()
+                            break
+
+                        os.system('cls' if os.name == 'nt' else 'clear')
+                        
+                        if operacao == 'binaria':
+                            opcao = "binaria"
+                            #inicio(ganhos, percas, atual)
+                        elif operacao == 'digital':
+                            opcao = "digital"
+                            #inicio(ganhos, percas, atual)
+                        else:
+                            opcao,percent,sta = most_profit_mode(iqo_api, paridade, 1, min_payout=(int(paym) / 100))
+                            #opcao = pay(paridade, "melhor", 1)
+                            
+                            if opcao == 'turbo':
+                                opcao = 'binaria'                         
+                        
+                            if opcao == 'closed' or opcao == 'error' or opcao == 'payout':
+                                print('Moeda fora de operação neste momento')
+                                time.sleep(5)
+                                buscar()
+                                break
+
+                            if percent < (int(paym) / 100):
+                                print('payout = ',percent)
+                                print(f'Payout Abaixo do padrão que você escolheu que é de {paym}%.')
+                                time.sleep(5)
+                                buscar()
+                                break
+
+                        
+                        inicio(ganhos, percas, atual)
+                        mta = stop(ganhos,percas)
+                        
+                        if mta:
+                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                            sys.exit()
+                            
+                        else:   
+                            if trabalho == 'scalper1' or trabalho == 'scalper2':
+                                parfixo = paridade
+                                padraoTrabalho = padrao
+                                SCALPER(parfixo, padraoTrabalho)
+                            else:
+                                if padrao == 'MHI':
+                                    c3 = False
+                                    MHI0()
+                                    break
+                                
+                                elif padrao == 'MHI2':
+                                    c3 = False
+                                    MHI_2()
+                                    break
+                                    
+                                elif padrao == 'MHI3':
+                                    c3 = False
+                                    MHI_3()
+                                    break
+                                    
+                                elif padrao == 'MHI2 Maioria':
+                                    c3 = False
+                                    MHI2_MAIORIA()
+                                    break
+                                    
+                                elif padrao == 'MHI3 Maioria':
+                                    c3 = False
+                                    MHI3_MAIORIA()
+                                    break
+                                    
+                                elif padrao == 'Milhão Minoria':
+                                    c3 = False
+                                    MILHAO_MINORIA()
+                                    break
+                                    
+                                elif padrao == 'Milhão Maioria':
+                                    c3 = False
+                                    MILHAO_MAIORIA()
+                                    break
+                                    
+                                elif padrao == 'Padrão Impar':
+                                    c3 = False
+                                    PADRAO_IMPAR()
+                                    break
+                                    
+                                elif padrao == 'Torres Gêmeas':
+                                    c3 = False
+                                    TORRES_GEMEAS()
+                                    break
+                                    
+                                elif padrao == 'Três Mosqueteiros':
+                                    c3 = False
+                                    TRES_MOSQUETEIROS()
+                                    break
+                                                                
+                                elif padrao == 'Melhor de 3':
+                                    c3 = False
+                                    MELHOR_DE_3()
+                                    break
+                                    
+                                elif padrao == 'Padrão 23':
+                                    c3 = False
+                                    PADRAO_23()
+                                    break
+                                    
+                                elif padrao == 'MHI Maioria':
+                                    c3 = False
+                                    MHI_MAIORIA()    
+                                    break
+                                elif padrao == 'Five Flip':
+                                    c3 = False
+                                    FIVE_FLIP()    
+                                    break  
+                                elif padrao == 'Três Vizinhos':
+                                    c3 = False
+                                    TRES_VIZINHOS()    
+                                    break 
+                                else:
+                                    print(f'PADRÃO DESABILITADO, BUSCANDO PROXIMO...')
+                                    time.sleep(30)
+                                    buscar()
+                                    break
+            
+            elif velasM == 'M5':
+                minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+                entrar = True if (minutos >= 4.25 and minutos <= 5) or minutos >= 9.25 else False
+                grana = 'R$ {:,.2f}'.format(atual)
+                perdeu = DER
+                ganhou = VIT
+                
+
+                print(f'{Verde} LOSS: {perdeu} / WIN: {ganhou} = Lucros: {grana} {Reset} - ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+
+                if entrar:
+                    paridade, padrao, porcentagem, WIN, G1, G2, HIT, win, g1, g2, hit, ATU = catalogar(str(velasM),int(gales),int(erros),int(catalogo))
+                    print(paridade)
+                    if paridade == '':
+                        print(f'NEHUM PADÃO TEM MENOS DE {erros} DERROTAS NO MOMENTO')
+                        time.sleep(10)
+                        buscar()
+                        break 
+                    
+                    else:
+                                                    
+                        if int(porcentagem) < int(acerm):
+                            print(f'PADRÃO LOCALIZADO {padrao} - {paridade} = {porcentagem}\nFAREI NOVA BUSCA, PORCENTAGEM MINIMA DE {acerm}%')
+                            time.sleep(10)
+                            buscar()
+                            break
+
+                        os.system('cls' if os.name == 'nt' else 'clear')
+                        os.system('cls' if os.name == 'nt' else 'clear')
+                        
+                        if operacao == 'binaria':
+                            opcao = "binaria"
+                            #inicio(ganhos, percas, atual)
+                        elif operacao == 'digital':
+                            opcao = "digital"
+                            #inicio(ganhos, percas, atual)
+                        else:
+                            opcao,percent,sta = most_profit_mode(iqo_api, paridade, 5, min_payout=(int(paym) / 100))
+                            #opcao = pay(paridade, "melhor", 1)
+                            
+                            if opcao == 'turbo':
+                                opcao = 'binaria'                         
+                        
+                            if opcao == 'closed' or opcao == 'error' or opcao == 'payout':
+                                print('Moeda fora de operação neste momento')
+                                time.sleep(5)
+                                buscar()
+                                break
+
+                            if percent < (int(paym) / 100):
+                                print('payout = ',percent)
+                                print(f'Payout Abaixo do padrão que você escolheu que é de {paym}%.')
+                                time.sleep(5)
+                                buscar()
+                                break
+
+                            inicio(ganhos, percas, atual)
+                            mta = stop(ganhos,percas)
+                            
+                            if mta:
+                                print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                sys.exit()
+                                
+                            else: 
+                                if trabalho == 'scalper1' or trabalho == 'scalper2':
+                                    parfixo = paridade
+                                    padraoTrabalho = padrao
+                                    SCALPER(parfixo, padraoTrabalho)
+                                else:  
+                                    if padrao == 'MHI':
+                                        c3 = False
+                                        MHI0()
+                                        break
+                                    
+                                    elif padrao == 'MHI2':
+                                        c3 = False
+                                        MHI_2()
+                                        break
+                                        
+                                    elif padrao == 'MHI3':
+                                        c3 = False
+                                        MHI_3()
+                                        break
+                                        
+                                    elif padrao == 'MHI2 Maioria':
+                                        c3 = False
+                                        MHI2_MAIORIA()
+                                        break
+                                        
+                                    elif padrao == 'MHI3 Maioria':
+                                        c3 = False
+                                        MHI3_MAIORIA()
+                                        break
+                                        
+                                    elif padrao == 'Milhão Minoria':
+                                        c3 = False
+                                        MILHAO_MINORIA()
+                                        break
+                                        
+                                    elif padrao == 'Milhão Maioria':
+                                        c3 = False
+                                        MILHAO_MAIORIA()
+                                        break
+                                                                        
+                                    elif padrao == 'Torres Gêmeas':
+                                        c3 = False
+                                        TORRES_GEMEAS()
+                                        break
+                                        
+                                    elif padrao == 'Três Mosqueteiros':
+                                        c3 = False
+                                        TRES_MOSQUETEIROS()
+                                        break
+                                    
+                                    elif padrao == 'MHI Maioria':
+                                        c3 = False
+                                        MHI_MAIORIA()    
+                                        break
+                                    elif padrao == 'Five Flip':
+                                        c3 = False
+                                        FIVE_FLIP()    
+                                        break  
+                                    elif padrao == 'Três Vizinhos':
+                                        c3 = False
+                                        TRES_VIZINHOS()    
+                                        break
+                                    elif padrao == 'MHI de Meio Ciclo':
+                                        c3 = False
+                                        MHI_MEIO()    
+                                        break
+                                    else:
+                                        print(f'PADRÃO DESABILITADO, BUSCANDO PROXIMO...')
+                                        time.sleep(30)
+                                        buscar()
+                                        break
+                                    '''
+                                    elif padrao == 'Padrão Impar':
+                                        c3 = False
+                                        PADRAO_IMPAR()
+                                        break
+                                    
+                                    elif padrao == 'Melhor de 3':
+                                        c3 = False
+                                        MELHOR_DE_3()
+                                        break
+                                        
+                                    elif padrao == 'Padrão 23':
+                                        c3 = False
+                                        PADRAO_23()
+                                        break
+                                    '''
+
+def telegram(tipo,result,hora):
+    global nome
+    global velasM
+    import requests
+
+
+    chat_id = "-598251971"
+
+    if tipo == "inicial":
+        msg = f'''
+        ⚠️⚠️ Atenção Traders!!! ⚠️⚠️
+        Possivel entrada no proximo minuto
+
+        🕐 Timeframe: {velasM}
+
+        🏴‍☠️ Paridade: EURGBP - {hora}
+        📊 Estratégia: MHI minoria
+        🕐 Resultado: Aguardando
+        FONTE: {nome}
+        ------------------------------------
+        '''
+    elif tipo == "final":
+        msg = f'''
+        ⚠️⚠️ Atenção Traders!!! ⚠️⚠️
+        Resultado de sinal das {hora}
+
+        🕐 Timeframe: {velasM}
+
+        🏴‍☠️ Paridade: EURGBP
+        📊 Estratégia: MHI minoria
+        🔰 Resultado: {result}
+        FONTE: {nome}
+        ------------------------------------
+        '''
+
+    def send_message(chat_id, msg):
+        requests.post('https://api.telegram.org/bot1124089653:AAFvtVnYoulqRCU3g80z0qM6hn__QIQKYeE/sendMessage', {'chat_id': chat_id, 'text': str(msg)})
+
+
+
+    #msg = "testando bot"
+    send_message(chat_id, msg)
+
+def verificar_se_fez_a_conexao(_iq: IQ_Option, _account_type: str = 'PRACTICE') -> bool:
+    check, reason = _iq.connect()
+    error_password = """{"code":"invalid_credentials","message":"You entered the wrong credentials. Please check that the login/password is correct."}"""
+    requests_limit_exceeded = """{"code":"requests_limit_exceeded","message":"The number of requests has been exceeded. Try again in 10 minutes.","ttl":600}"""
+    if check:
+        print("Checando dados...")
+        _iq.change_balance(_account_type)
+        return True
+    else:
+        if reason == "[Errno -2] email ou senha invalida":
+            print("No Network")
+        elif reason == error_password:
+            error_message = ast.literal_eval(error_password)
+            print(error_message['message'])
+        elif reason == requests_limit_exceeded:
+            error_message = ast.literal_eval(requests_limit_exceeded)
+            print(error_message['message'])
+
+    print("encerrando bot, verifique seus dados.")
+    return False
+
+def format_currency_value(_currency_account: str, _value: float) -> str:
+    return '$ {:,.2f}'.format(_value) if _currency_account == 'USD' else 'R$ {:,.2f}'.format(_value)
+
+def get_color_candle(_candle: dict) -> str:
+    return 'G' if _candle['open'] < _candle['close'] else 'R' if _candle['open'] > _candle['close'] else 'D'
+
+def perfil():
+    perfil = json.loads(json.dumps(iq.get_profile_ansyc()))
+    
+    return perfil
+
+def timestamp_converter(_timestamp: int) -> str:
+    hora = datetime.strptime(datetime.utcfromtimestamp(_timestamp).strftime(DATE_TIME_FORMAT), DATE_TIME_FORMAT)
+    hora = hora.replace(tzinfo=tz.gettz('GMT'))
+    return str(hora.astimezone(tz.gettz('America/Sao Paulo')))[:-9]
+
+def timestamp_converter2(x):  # Função para converter timestamp
+    hora = datetime.strptime(datetime.utcfromtimestamp(
+        x).strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S')
+    hora = hora.replace(tzinfo=tz.gettz('GMT'))
+
+    return hora
+
+def filter_columns(_candles: list) -> list:
+    return [{k: v for k, v in candle.items() if k in {'from', 'open', 'close'}} for candle in _candles]
+
+def adjust_catalog(_pariedade: str, _candle: dict) -> dict:
+    return {
+        'pariedade': _pariedade,
+        'hora': timestamp_converter(_candle['from']).split(' ')[1],
+        'green': 1 if get_color_candle(_candle) == 'G' else 0,
+        'red': 1 if get_color_candle(_candle) == 'R' else 0,
+        'doji': 1 if get_color_candle(_candle) == 'D' else 0
+    }
+
+def banca():
+    return iq.get_balance()
+
+def tendencia(par):
+    #par = 'AUDCAD'
+    timeframe = 5
+
+    velas = iq.get_candles(par, (int(timeframe) * 60), 25,  time.time())
+
+    ultimo = round(velas[0]['close'], 4)
+    primeiro = round(velas[-1]['close'], 4)
+
+    diferenca = abs( round( ( (ultimo - primeiro) / primeiro ) * 100, 3) )
+    tendencia = "CALL" if ultimo < primeiro and diferenca > 0.01 else "PUT" if ultimo > primeiro and diferenca > 0.01 else False
+    
+    return tendencia
+
+def stop(ganhos,percas):
+    global stop_loss
+    global stop_win
+    global atual
+    global STP
+    global hora_inicial
+    global hora_X
+    global espera
+    global AT
+    global atual
+    global espera
+    
+            
+    if atual <= float('-' + str(abs(stop_loss))):
+        
+        inicio(ganhos, percas, atual)
+        print('STOP LOSS ATINGIDO!!!')
+        
+        print('\nVAMOS PARAR POR HOJE NÉ!!!!')
+        return True
+        sys.exit()
+        
+
+        
+    if atual >= float(abs(stop_win)):
+        
+        inicio(ganhos, percas, atual)
+        print('STOP WIN ATINGIDO!!!')
+        
+        print('VAMOS POR ESSA NA CONTA E VOLTAR SO AMANHÃ NÉ!!!!')
+        return True
+        sys.exit()
+
+def inicio(ganhos, percas, atual):
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global opcao
+    global STP
+    global VIT
+    global DER
+    global BANCAINICIAL
+    global hora_X
+    global ATU
+    global velasM
+    global gerenciada
+    global quantidade
+    global martingale
+    global ENT
+    global gales
+    global G
+    global inverter
+    global saldo
+    global catalogo
+    global cat
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global S_valor_minimo
+    global S_porcentagem_lucro
+    
+    if gerenciada:
+        modo = 'SOROSGALE'
+        quantidade = ENT
+    else:
+        modo = 'MARTINGALE'
+    if gales == 0:
+        G = 'Mão fixa'
+    if gales == 1:
+        G = '1 Gale'
+    if gales == 2:
+        G = '2 Gale'
+    
+    if catalogo == 0:
+        cat = 'Catalogação automatica'
+    elif catalogo == 1:
+        cat = 'Catalogação de mão fixa'
+    elif catalogo == 2:
+        cat = 'Catalogação de 1 gale'
+    elif catalogo == 3:
+        cat = 'Catalogação de 2 gale'
+    
+    
+    
+
+    if inverter:
+        inver = 'ATIVO'   
+    else:
+        inver = 'DESATIVADO' 
+    
+    if trabalho == 'lista':
+        padrao = 'LISTA'
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'{Amarelo}______  ___       ______  ________                _________{Reset}')              
+        print(f'{Amarelo}___   |/  /______ ___  /_ ___  __/______________ _______  /_____ ________{Reset}')
+        print(f'{Amarelo}__  /|_/ / _  __ \__  __ \__  /   __  ___/_  __ `/_  __  / _  _ \__  ___/{Reset}')
+        print(f'{Amarelo}_  /  / /  / /_/ /_  /_/ /_  /    _  /    / /_/ / / /_/ /  /  __/_  /{Reset}')    
+        print(f'{Amarelo}/_/  /_/   \____/ /_.___/ /_/     /_/     \__,_/  \__,_/   \___/ /_/ {Reset}\n')  
+        print(f'{Azul}FULL MHI V 1.0{Reset} - Contato: +55 (11) 9 7615-9233\n')    
+        print(f'Ganhos: {Verde}{round(ganhos, 2)}{Reset} || Percas: {Vermelho}{round(percas, 2)}{Reset} || Locros: {Amarelo}{round(atual, 2)}{Reset}\nConta: {Azul}{conta}{Reset}')
+        print(f'VITORIAS: {Verde}{VIT}{Reset} // DERROTAS: {Vermelho}{DER}{Reset}\nSUA BANCA INICIAL: {Azul}{saldo}{Reset}\nSUA BANCA ATUAL: {Amarelo}{round(banca(), 2)}{Reset}')
+        print(f'MOEDA: {Verde}{moeda}{Reset} || PADRÃO: {Verde}{padrao}{Reset}\nVELAS DE: {Amarelo}{velasM}{Reset} || ENTRADA: {Verde}{round(quantidade, 2)}{Reset}')#VITORIAS DE PRIMEIRA: {Verde}{WIN} - {win}% DE VITORIAS{Reset}\nVITORIAS NO GALE 1: {Verde}{G1} - {g1}% DE VITORIAS{Reset}\nVITORIAS NO GALE 2: {Verde}{G2} - {g2}% DE VITORIAS{Reset}\nHIT: {Vermelho}{HIT} - {hit}% DE DERROTAS{Reset}')
+        print(f'GALES: {Azul}{gales}{Reset}')
+        print(f'*********************************************************************************************')
+    elif trabalho == 'fixo':
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'{Amarelo}______  ___       ______  ________                _________{Reset}')              
+        print(f'{Amarelo}___   |/  /______ ___  /_ ___  __/______________ _______  /_____ ________{Reset}')
+        print(f'{Amarelo}__  /|_/ / _  __ \__  __ \__  /   __  ___/_  __ `/_  __  / _  _ \__  ___/{Reset}')
+        print(f'{Amarelo}_  /  / /  / /_/ /_  /_/ /_  /    _  /    / /_/ / / /_/ /  /  __/_  /{Reset}')    
+        print(f'{Amarelo}/_/  /_/   \____/ /_.___/ /_/     /_/     \__,_/  \__,_/   \___/ /_/ {Reset}\n')  
+        print(f'{Azul}FULL MHI V 1.0{Reset} - Contato: +55 (11) 9 7615-9233\n')    
+        print(f'Ganhos: {Verde}{round(ganhos, 2)}{Reset} || Percas: {Vermelho}{round(percas, 2)}{Reset} || Locros: {Amarelo}{round(atual, 2)}{Reset}\nConta: {Azul}{conta}{Reset} || Opção: {Amarelo}{opcao.upper()}{Reset}')
+        print(f'VITORIAS: {Verde}{VIT}{Reset} // DERROTAS: {Vermelho}{DER}{Reset}\nSUA BANCA INICIAL: {Azul}{saldo}{Reset}\nSUA BANCA ATUAL: {Amarelo}{round(banca(), 2)}{Reset}')
+        print(f'MOEDA: {Verde}{parfixo}{Reset} || PADRÃO: {Verde}{padraoTrabalho}{Reset}\nVELAS DE: {Amarelo}{velasM}{Reset} || ENTRADA: {Verde}{round(quantidade, 2)}{Reset}')#VITORIAS DE PRIMEIRA: {Verde}{WIN} - {win}% DE VITORIAS{Reset}\nVITORIAS NO GALE 1: {Verde}{G1} - {g1}% DE VITORIAS{Reset}\nVITORIAS NO GALE 2: {Verde}{G2} - {g2}% DE VITORIAS{Reset}\nHIT: {Vermelho}{HIT} - {hit}% DE DERROTAS{Reset}')
+        print(f'GALES: {Azul}{gales}{Reset} || INVERSÃO: {Azul}{inver}{Reset}')
+        print(f'*********************************************************************************************')
+    elif trabalho == 'scalper1' or trabalho == 'scalper2':
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'{Amarelo}______  ___       ______  ________                _________{Reset}')              
+        print(f'{Amarelo}___   |/  /______ ___  /_ ___  __/______________ _______  /_____ ________{Reset}')
+        print(f'{Amarelo}__  /|_/ / _  __ \__  __ \__  /   __  ___/_  __ `/_  __  / _  _ \__  ___/{Reset}')
+        print(f'{Amarelo}_  /  / /  / /_/ /_  /_/ /_  /    _  /    / /_/ / / /_/ /  /  __/_  /{Reset}')    
+        print(f'{Amarelo}/_/  /_/   \____/ /_.___/ /_/     /_/     \__,_/  \__,_/   \___/ /_/ {Reset}\n')  
+        print(f'{Azul}FULL MHI V 1.0{Reset} - Contato: +55 (11) 9 7615-9233\n')    
+        print(f'Ganhos: {Verde}{round(ganhos, 2)}{Reset} || Percas: {Vermelho}{round(percas, 2)}{Reset} || Locros: {Amarelo}{round(atual, 2)}{Reset}\nConta: {Azul}{conta}{Reset} || Opção: {Amarelo}{opcao.upper()}{Reset}')
+        print(f'VITORIAS: {Verde}{VIT}{Reset} // DERROTAS: {Vermelho}{DER}{Reset}\nSUA BANCA INICIAL: {Azul}{saldo}{Reset}\nSUA BANCA ATUAL: {Amarelo}{round(banca(), 2)}{Reset}')
+        print(f'MOEDA: {Verde}{parfixo}{Reset} || PADRÃO: {Verde}{padraoTrabalho}{Reset}\nVELAS DE: {Amarelo}{velasM}{Reset} || ENTRADA: {Verde}{round(quantidade, 2)}{Reset}')#VITORIAS DE PRIMEIRA: {Verde}{WIN} - {win}% DE VITORIAS{Reset}\nVITORIAS NO GALE 1: {Verde}{G1} - {g1}% DE VITORIAS{Reset}\nVITORIAS NO GALE 2: {Verde}{G2} - {g2}% DE VITORIAS{Reset}\nHIT: {Vermelho}{HIT} - {hit}% DE DERROTAS{Reset}')
+        print(f'PORCENTAGEM: {Azul}{S_porcentagem_lucro}%{Reset} || VALOR PARA SAIR: {Azul}{S_valor_minimo}{Reset}')
+        print(f'*********************************************************************************************')
+    else:        
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'{Amarelo}______  ___       ______  ________                _________{Reset}')              
+        print(f'{Amarelo}___   |/  /______ ___  /_ ___  __/______________ _______  /_____ ________{Reset}')
+        print(f'{Amarelo}__  /|_/ / _  __ \__  __ \__  /   __  ___/_  __ `/_  __  / _  _ \__  ___/{Reset}')
+        print(f'{Amarelo}_  /  / /  / /_/ /_  /_/ /_  /    _  /    / /_/ / / /_/ /  /  __/_  /{Reset}')    
+        print(f'{Amarelo}/_/  /_/   \____/ /_.___/ /_/     /_/     \__,_/  \__,_/   \___/ /_/ {Reset}\n')  
+        print(f'{Azul}FULL MHI V 1.0{Reset} - Contato: +55 (11) 9 7615-9233\n')    
+        print(f'Ganhos: {Verde}{round(ganhos, 2)}{Reset} || Percas: {Vermelho}{round(percas, 2)}{Reset} || Locros: {Amarelo}{round(atual, 2)}{Reset}\nConta: {Azul}{conta}{Reset} || Opção: {Amarelo}{opcao.upper()}{Reset}')
+        print(f'VITORIAS: {Verde}{VIT}{Reset} // DERROTAS: {Vermelho}{DER}{Reset}\nSUA BANCA INICIAL: {Azul}{saldo}{Reset}\nSUA BANCA ATUAL: {Amarelo}{round(banca(), 2)}{Reset}')
+        print(f'MOEDA: {Verde}{paridade}{Reset} || PADRÃO: {Verde}{padrao}  {porcentagem}%{Reset}\nVELAS DE: {Amarelo}{velasM}{Reset} || ENTRADA: {Verde}{round(quantidade, 2)}{Reset}')#VITORIAS DE PRIMEIRA: {Verde}{WIN} - {win}% DE VITORIAS{Reset}\nVITORIAS NO GALE 1: {Verde}{G1} - {g1}% DE VITORIAS{Reset}\nVITORIAS NO GALE 2: {Verde}{G2} - {g2}% DE VITORIAS{Reset}\nHIT: {Vermelho}{HIT} - {hit}% DE DERROTAS{Reset}')
+        print(f'GALES: {Azul}{gales}{Reset} || INVERSÃO: {Azul}{inver}{Reset}')
+        print(f'Catalogação: {Azul}{cat}{Reset}')
+        print(f'*********************************************************************************************')
+
+def carregarM5(nomeArquivo):
+	arquivo = open(str(nomeArquivo), encoding='UTF-8')
+	lista = arquivo.read()
+	arquivo.close
+	
+	lista = lista.split('\n')
+	
+	for index,a in enumerate(lista):
+		if a == '':
+			del lista[index]
+	
+	return lista
+
+def alerta(entrada,saida,lucro,resultado,direcao,extrategia,moeda,data,horario):
+    global chaveN
+    global nome
+    global conta
+        
+    data = {'chave': f'{chaveN}','nome': f'{nome}','moeda': f'{moeda}','direcao': f'{direcao}','extrategia': f'{extrategia}','data': f'{data}','entrada': f'{entrada}','saida': f'{saida}','lucro': f'{lucro}','resultado': f'{resultado}','conta': f'{conta}','hora': f'{horario}', 'acao': 'Cadastrar'}
+    url = "http://mobtrader.myartsonline.com/alert/jogadores.php"    
+    resp = requests.post(url, data)
+
+def datas():
+    hora = datetime.now()
+    hora = hora.strftime('%H:%M:%S')
+    data_atual = date.today()
+    data_em_texto = '{}/{}/{}'.format(data_atual.day,data_atual.month,data_atual.year)
+    return data_em_texto
+
+def horario():
+    hora = datetime.now()
+    hora = hora.strftime('%H:%M:%S')
+    return hora
+
+def Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2):
+    global LC
+    global stop_loss
+    global stop_win
+    global BANCAINICIAL
+    global ganhos
+    global percas
+    global atual
+    global ban
+    global v2
+    global v0
+    global c3
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global martingale
+    global VIT
+    global DER
+    global VTS
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global ENT
+    global sorosmao
+    global pulos
+    global trabalho
+    global moeda
+    global timeframe
+    global parfixo
+    global padraoTrabalho
+    
+
+    if trabalho == 'fixo':
+        ativo = parfixo
+        padrao = padraoTrabalho 
+
+
+
+    
+    #print(NV)   
+    if isinstance(id, int):
+        result = ''                
+        while True:
+
+            data = datas()
+            hora = horario()   
+
+
+            status,lucro = iq.check_win_v4(id)
+            if status:
+                
+                if lucro < 0 and NV > 0:
+                    NV -= 1
+                    CT += 1
+                    percas += round(lucro, 2)
+                    atual += round(lucro, 2)
+                    ban = round(banca(), 2)
+                    inicio(ganhos, percas, atual)
+
+                    NOVA_ENTRADA = float(quantidade)*MT
+                    entrada = 'R$ {:,.2f}'.format(NOVA_ENTRADA)
+                    
+                    print(f'{Amarelo}MARTINGALE: {Reset}'+str(CT)+ ' ' + padrao.upper() + ' ' +str(hora)+', ATIVO: '+str(ativo)+' - '+str(entrada))
+                        
+                    status,id = iq.buy(NOVA_ENTRADA, ativo, direcao, tempo)
+
+                    if trabalho == 'lista':
+                        Verifica_status(id,ativo,NOVA_ENTRADA,direcao,tempo,opcao,hora,NV,MT,CT,timeframe)
+                    else:
+                        Verifica_status(id,ativo,NOVA_ENTRADA,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    
+                    
+
+                elif lucro > 0:
+                    VTS += 1
+                    ganhos += round(lucro, 2)
+                    atual += round(lucro, 2)
+                    ban = round(banca(), 2)
+                    VIT += 1
+                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                    
+                    
+                    if CT == 1:
+                        result = 'Win no Gale 1'    
+                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"G1",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    elif CT == 2:
+                        result = 'Win no Gale 2' 
+                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"G2",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    else:
+                        result = 'Win de primeira' 
+                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
+
+                    
+                    inicio(ganhos, percas, atual)
+                    
+                    print(f'{Verde}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                    print('Lucro:' + str(round(lucro, 2)))
+                    #telegram("final",result,hora)
+                    time.sleep(5)
+                    mta = stop(ganhos,percas)
+                    if mta:
+                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                        sys.exit()
+                        
+                    if trabalho == 'lista':  
+                        lista_sinais()
+                    elif trabalho == 'fixo':
+                        entradas_fixas(parfixo, padraoTrabalho)
+                    else:
+                        buscar()
+                    
+            
+            
+                elif lucro < 0:
+                    
+                    VTS = 0
+                    percas += round(lucro, 2)
+                    atual += round(lucro, 2)
+                    ban = round(banca(), 2)
+                    DER += 1
+                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                    
+                                        
+                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"HIT",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    
+                    
+                    inicio(ganhos, percas, atual)
+                                        
+                    print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                    print('Lucro:' + str(round(lucro, 2)))
+                    result = 'Derrota' 
+                    #telegram("final",result,hora)
+                    time.sleep(5)
+                    mta = stop(ganhos,percas)
+                    if mta:
+                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                        sys.exit()
+                    if trabalho == 'lista':  
+                        lista_sinais()
+                    elif trabalho == 'fixo':
+                        entradas_fixas(parfixo, padraoTrabalho)
+                    else:
+                        buscar()
+                        
+                        
+                else:
+                    print(f'{Azul}{ativo} | {direcao.upper()} | DOJI{Reset}')
+                    print('Lucro:' + str(round(lucro, 2)))
+                    result = 'Empate(DOJI)' 
+                    #telegram("final",result,hora)
+                    time.sleep(5)
+                    mta = stop(ganhos,percas)
+                    if mta:
+                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                        sys.exit()                    
+                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"DOJI",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    if trabalho == 'lista':  
+                        lista_sinais()
+                    elif trabalho == 'fixo':
+                        entradas_fixas(parfixo, padraoTrabalho)
+                    else:
+                        buscar()
+                                                    
+                                    
+            stop(ganhos,percas)
+                                                           
+def Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2):
+    global LC
+    global stop_loss
+    global stop_win
+    global BANCAINICIAL
+    global ganhos
+    global percas
+    global atual
+    global ban
+    global v2
+    global v0
+    global c3
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global VIT
+    global DER
+    global VTS
+    global conta
+    global resu
+    global luc
+    global quant
+    global ENT
+    global trabalho
+    global moeda
+    global timeframe
+    global parfixo
+    global padraoTrabalho
+
+    if trabalho == 'fixo':
+        ativo = parfixo
+        padrao = padraoTrabalho
+    
+
+    
+    
+    #print(NV)
+    if isinstance(id, int):
+    #ui.listWidget_2.insertItem(0, f'{id} {ativo}')               
+        while True:
+
+            data = datas()
+            hora = horario()
+            
+            status,lucro = iq.check_win_digital_v2(id)
+            if status:
+                
+                if lucro < 0 and NV > 0:
+                    NV -= 1
+                    CT += 1
+                    percas += round(lucro, 2)
+                    atual += round(lucro, 2)
+                    ban = round(banca(), 2)
+                    inicio(ganhos, percas, atual)
+
+                    NOVA_ENTRADA = float(quantidade)*MT
+                    entrada = 'R$ {:,.2f}'.format(NOVA_ENTRADA)
+                    print(f'{Amarelo}MARTINGALE: {Reset}'+str(CT)+ ' ' + padrao.upper() + ' ' +str(hora)+', ATIVO: '+str(ativo)+' - '+str(entrada))
+                        
+                    status,id = iq.buy_digital_spot_v2(ativo, NOVA_ENTRADA, direcao, tempo)
+                    
+                    if trabalho == 'lista':
+                        Verifica_status_D(id,ativo,NOVA_ENTRADA,direcao,tempo,opcao,hora,NV,MT,CT,timeframe)
+                    else:
+                        Verifica_status_D(id,ativo,NOVA_ENTRADA,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    
+                    
+
+                elif lucro > 0:
+                    VTS += 1
+                    ganhos += round(lucro, 2)
+                    atual += round(lucro, 2)
+                    ban = round(banca(), 2)
+                    VIT += 1
+                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                    
+                    
+                    if CT == 1:
+                        result = 'Win no Gale 1'    
+                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"G1",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    elif CT == 2:
+                        result = 'Win no Gale 2' 
+                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"G2",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    else:
+                        result = 'Win de primeira' 
+                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
+
+                    
+                    inicio(ganhos, percas, atual)
+                    
+                    print(f'{Verde}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                    print('Lucro:' + str(round(lucro, 2)))
+                    #telegram("final",result,hora)
+                    time.sleep(5)
+                    mta = stop(ganhos,percas)
+                    if mta:
+                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                        sys.exit()
+                        
+                    if trabalho == 'lista':  
+                        lista_sinais()
+                    elif trabalho == 'fixo':
+                        entradas_fixas(parfixo, padraoTrabalho)
+                    else:
+                        buscar()
+                    
+            
+            
+                elif lucro < 0:
+                    
+                    VTS = 0
+                    percas += round(lucro, 2)
+                    atual += round(lucro, 2)
+                    ban = round(banca(), 2)
+                    DER += 1
+                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                    
+                                        
+                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"HIT",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    
+                    
+                    inicio(ganhos, percas, atual)
+                                        
+                    print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                    print('Lucro:' + str(round(lucro, 2)))
+                    result = 'Derrota' 
+                    #telegram("final",result,hora)
+                    time.sleep(5)
+                    mta = stop(ganhos,percas)
+                    if mta:
+                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                        sys.exit()
+                    if trabalho == 'lista':  
+                        lista_sinais()
+                    elif trabalho == 'fixo':
+                        entradas_fixas(parfixo, padraoTrabalho)
+                    else:
+                        buscar()
+                        
+                        
+                
+                else:
+                    print(f'{Azul}{ativo} | {direcao.upper()} | DOJI{Reset}')
+                    print('Lucro:' + str(round(lucro, 2)))
+                    result = 'Derrota(DOJI)' 
+                    #telegram("final",result,hora)
+                    time.sleep(5)
+                    mta = stop(ganhos,percas)
+                    if mta:
+                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                        sys.exit()
+                    
+                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"DOJI",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    if trabalho == 'lista':  
+                        lista_sinais()
+                    elif trabalho == 'fixo':
+                        entradas_fixas(ativo, padraoTrabalho)
+                    else:
+                        buscar()
+                                                    
+                                    
+            stop(ganhos,percas)
+
+def confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par):
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global sorosmao
+    global ENT
+    global gales
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+    global S_valor_minimo
+    global S_porcentagem_lucro
+    global S_valor_minimo2
+    global S_porcentagem_lucro2
+    global DER
+    global VIT
+    global VTS
+    global operacao
+
+
+    dir = direcao
+               
+    if TEND:
+        dica = tendencia(par)
+        print(f'Tendencia = {dica}')
+        
+
+        if opcao == 'binaria':
+            ban = round(banca(), 2)
+            entrada = 'R$ {:,.2f}'.format(quantidade)
+            print('Entrada a ser realizada, valor '+str(entrada)+' - '+str(ativo))
+            print(f'Direção: {direcao}\n')
+            if pulos == 0:
+                status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                if id:
+                    Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                else:
+                    print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+            elif pulos == 1 and velasM == 'M1': 
+                time.sleep(60)
+                status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                if id:
+                    Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                else:
+                    print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+            elif pulos == 2 and velasM == 'M1':
+                time.sleep(120)
+                status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                if id:
+                    Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                else:
+                    print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+            elif pulos == 1 and velasM == 'M5':
+                time.sleep(300)
+                status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                if id:
+                    Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                else:
+                    print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+            elif pulos == 2 and velasM == 'M5':
+                time.sleep(600)
+                status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                if id:
+                    Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                else:
+                    print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                
+        elif opcao == 'digital':
+            ban = round(banca(), 2)
+            entrada = 'R$ {:,.2f}'.format(quantidade)
+            print('Entrada a ser realizada, valor '+str(entrada)+' - '+str(ativo))
+            print(f'Direção: {direcao}\n')
+            
+            if pulos == 0:
+                status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
+                if id:
+                    if trabalho == 'scalper1' or trabalho == 'scalper2':
+                        
+                        iq.subscribe_strike_list(ativo, tempo)
+
+                        status,id = iq.buy_digital_spot_v2(ativo, quantidade, direcao, tempo)
+                        time.sleep(2)
+
+                        while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+                            vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+                            
+                            data = datas()
+                            hora = horario()
+                            
+                            print(f'{Verde}Atual: R$ {vpv}{Reset} - {Amarelo}Minimo para aceitar: R$ {S_valor_minimo} / {S_valor_minimo2}{Reset}', end='\r')
+                            
+                            
+                            if vpv > S_valor_minimo or vpv <= S_valor_minimo2:
+                                print('Fechando operação')
+                                iq.close_digital_option(id)
+                                
+                            
+                            time.sleep(0.4)
+                            
+                            status,lucro = iq.check_win_digital_v2(id)
+                            
+                            if status:
+                                if lucro < 0:
+                                    VTS = 0
+                                    percas += round(lucro, 2)
+                                    atual += round(lucro, 2)
+                                    ban = round(banca(), 2)
+                                    DER += 1
+                                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                    
+                                    inicio(ganhos, percas, atual)
+                                                        
+                                    print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                                    print('Lucro:' + str(round(lucro, 2)))
+                                    
+                                    time.sleep(5)
+                                    mta = stop(ganhos,percas)
+                                    if mta:
+                                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                        sys.exit()
+                                    
+                                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                    if trabalho == 'scalper1':
+                                        buscar()
+                                    elif trabalho == 'scalper2':    
+                                        SCALPER(parfixo, padraoTrabalho)
+                                    break
+
+                                if lucro > 0:
+                                    VTS += 1
+                                    ganhos += round(lucro, 2)
+                                    atual += round(lucro, 2)
+                                    ban = round(banca(), 2)
+                                    VIT += 1
+                                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                    
+                                    inicio(ganhos, percas, atual)
+                                                        
+                                    print(f'{Vermelho}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                                    print('Lucro:' + str(round(lucro, 2)))
+                                    
+                                    time.sleep(5)
+                                    mta = stop(ganhos,percas)
+                                    if mta:
+                                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                        sys.exit()
+                                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                    if trabalho == 'scalper1':
+                                        buscar()
+                                    elif trabalho == 'scalper2':    
+                                        SCALPER(parfixo, padraoTrabalho)
+                                    break
+                        
+                    else:    
+                        Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                else:
+                    print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+            elif pulos == 1 and velasM == 'M1': 
+                time.sleep(60)
+                status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
+                if id:
+                    if trabalho == 'scalper1' or trabalho == 'scalper2':
+                        
+                        iq.subscribe_strike_list(ativo, tempo)
+
+                        status,id = iq.buy_digital_spot(ativo, quantidade, direcao, tempo)
+                        time.sleep(2)
+
+                        while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+                            vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+                            
+                            data = datas()
+                            hora = horario()
+                            
+                            print(f'{Verde}Atual: R$ {vpv}{Reset} - {Amarelo}Minimo para aceitar: R$ {S_valor_minimo} / {S_valor_minimo2}{Reset}', end='\r')
+                            
+                            
+                            if vpv > S_valor_minimo or vpv <= S_valor_minimo2:
+                                print('Fechando operação')
+                                iq.close_digital_option(id)
+                                
+                            
+                            time.sleep(0.4)
+                            
+                            status,lucro = iq.check_win_digital_v2(id)
+                            
+                            if status:
+                                if lucro < 0:
+                                    VTS = 0
+                                    percas += round(lucro, 2)
+                                    atual += round(lucro, 2)
+                                    ban = round(banca(), 2)
+                                    DER += 1
+                                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                    
+                                    inicio(ganhos, percas, atual)
+                                                        
+                                    print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                                    print('Lucro:' + str(round(lucro, 2)))
+                                    
+                                    time.sleep(5)
+                                    mta = stop(ganhos,percas)
+                                    if mta:
+                                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                        sys.exit()
+                                    
+                                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                    if trabalho == 'scalper1':
+                                        buscar()
+                                    elif trabalho == 'scalper2':    
+                                        SCALPER(parfixo, padraoTrabalho)
+                                    break
+
+                                if lucro > 0:
+                                    VTS += 1
+                                    ganhos += round(lucro, 2)
+                                    atual += round(lucro, 2)
+                                    ban = round(banca(), 2)
+                                    VIT += 1
+                                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                    
+                                    inicio(ganhos, percas, atual)
+                                                        
+                                    print(f'{Vermelho}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                                    print('Lucro:' + str(round(lucro, 2)))
+                                    
+                                    time.sleep(5)
+                                    mta = stop(ganhos,percas)
+                                    if mta:
+                                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                        sys.exit()
+                                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                    if trabalho == 'scalper1':
+                                        buscar()
+                                    elif trabalho == 'scalper2':    
+                                        SCALPER(parfixo, padraoTrabalho)
+                                    break
+                    else:    
+                        Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                else:
+                    print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+            elif pulos == 2 and velasM == 'M1':
+                time.sleep(120)
+                status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
+                if id:
+                    if trabalho == 'scalper1' or trabalho == 'scalper2':
+                        
+                        iq.subscribe_strike_list(ativo, tempo)
+
+                        status,id = iq.buy_digital_spot(ativo, quantidade, direcao, tempo)
+                        time.sleep(2)
+
+                        while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+                            vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+                            
+                            data = datas()
+                            hora = horario()
+                            
+                            print(f'{Verde}Atual: R$ {vpv}{Reset} - {Amarelo}Minimo para aceitar: R$ {S_valor_minimo} / {S_valor_minimo2}{Reset}', end='\r')
+                            
+                            
+                            if vpv > S_valor_minimo or vpv <= S_valor_minimo2:
+                                print('Fechando operação')
+                                iq.close_digital_option(id)
+                                
+                            
+                            time.sleep(0.4)
+                            
+                            status,lucro = iq.check_win_digital_v2(id)
+                            
+                            if status:
+                                if lucro < 0:
+                                    VTS = 0
+                                    percas += round(lucro, 2)
+                                    atual += round(lucro, 2)
+                                    ban = round(banca(), 2)
+                                    DER += 1
+                                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                    
+                                    inicio(ganhos, percas, atual)
+                                                        
+                                    print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                                    print('Lucro:' + str(round(lucro, 2)))
+                                    
+                                    time.sleep(5)
+                                    mta = stop(ganhos,percas)
+                                    if mta:
+                                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                        sys.exit()
+                                    
+                                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                    if trabalho == 'scalper1':
+                                        buscar()
+                                    elif trabalho == 'scalper2':    
+                                        SCALPER(parfixo, padraoTrabalho)
+                                    break
+
+                                if lucro > 0:
+                                    VTS += 1
+                                    ganhos += round(lucro, 2)
+                                    atual += round(lucro, 2)
+                                    ban = round(banca(), 2)
+                                    VIT += 1
+                                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                    
+                                    inicio(ganhos, percas, atual)
+                                                        
+                                    print(f'{Vermelho}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                                    print('Lucro:' + str(round(lucro, 2)))
+                                    
+                                    time.sleep(5)
+                                    mta = stop(ganhos,percas)
+                                    if mta:
+                                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                        sys.exit()
+                                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                    if trabalho == 'scalper1':
+                                        buscar()
+                                    elif trabalho == 'scalper2':    
+                                        SCALPER(parfixo, padraoTrabalho)
+                                    break
+                    else:    
+                        Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                else:
+                    print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+            elif pulos == 1 and velasM == 'M5':
+                time.sleep(300)
+                status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
+                if id:
+                    if trabalho == 'scalper1' or trabalho == 'scalper2':
+                        
+                        iq.subscribe_strike_list(ativo, tempo)
+
+                        status,id = iq.buy_digital_spot(ativo, quantidade, direcao, tempo)
+                        time.sleep(2)
+
+                        while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+                            vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+                            
+                            data = datas()
+                            hora = horario()
+                            
+                            print(f'{Verde}Atual: R$ {vpv}{Reset} - {Amarelo}Minimo para aceitar: R$ {S_valor_minimo} / {S_valor_minimo2}{Reset}', end='\r')
+                            
+                            
+                            if vpv > S_valor_minimo or vpv <= S_valor_minimo2:
+                                print('Fechando operação')
+                                iq.close_digital_option(id)
+                                
+                            
+                            time.sleep(0.4)
+                            
+                            status,lucro = iq.check_win_digital_v2(id)
+                            
+                            if status:
+                                if lucro < 0:
+                                    VTS = 0
+                                    percas += round(lucro, 2)
+                                    atual += round(lucro, 2)
+                                    ban = round(banca(), 2)
+                                    DER += 1
+                                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                    
+                                    inicio(ganhos, percas, atual)
+                                                        
+                                    print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                                    print('Lucro:' + str(round(lucro, 2)))
+                                    
+                                    time.sleep(5)
+                                    mta = stop(ganhos,percas)
+                                    if mta:
+                                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                        sys.exit()
+                                    
+                                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                    if trabalho == 'scalper1':
+                                        buscar()
+                                    elif trabalho == 'scalper2':    
+                                        SCALPER(parfixo, padraoTrabalho)
+                                    break
+
+                                if lucro > 0:
+                                    VTS += 1
+                                    ganhos += round(lucro, 2)
+                                    atual += round(lucro, 2)
+                                    ban = round(banca(), 2)
+                                    VIT += 1
+                                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                    
+                                    inicio(ganhos, percas, atual)
+                                                        
+                                    print(f'{Vermelho}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                                    print('Lucro:' + str(round(lucro, 2)))
+                                    
+                                    time.sleep(5)
+                                    mta = stop(ganhos,percas)
+                                    if mta:
+                                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                        sys.exit()
+                                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                    if trabalho == 'scalper1':
+                                        buscar()
+                                    elif trabalho == 'scalper2':    
+                                        SCALPER(parfixo, padraoTrabalho)
+                                    break
+                    else:    
+                        Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                else:
+                    print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+            elif pulos == 2 and velasM == 'M5':
+                time.sleep(600)
+                status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
+                if id:
+                    if trabalho == 'scalper1' or trabalho == 'scalper2':
+                        
+                        iq.subscribe_strike_list(ativo, tempo)
+
+                        status,id = iq.buy_digital_spot(ativo, quantidade, direcao, tempo)
+                        time.sleep(2)
+
+                        while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+                            vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+                            
+                            data = datas()
+                            hora = horario()
+                            
+                            print(f'{Verde}Atual: R$ {vpv}{Reset} - {Amarelo}Minimo para aceitar: R$ {S_valor_minimo} / {S_valor_minimo2}{Reset}', end='\r')
+                            
+                            
+                            if vpv > S_valor_minimo or vpv <= S_valor_minimo2:
+                                print('Fechando operação')
+                                iq.close_digital_option(id)
+                                
+                            
+                            time.sleep(0.4)
+                            
+                            status,lucro = iq.check_win_digital_v2(id)
+                            
+                            if status:
+                                if lucro < 0:
+                                    VTS = 0
+                                    percas += round(lucro, 2)
+                                    atual += round(lucro, 2)
+                                    ban = round(banca(), 2)
+                                    DER += 1
+                                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                    
+                                    inicio(ganhos, percas, atual)
+                                                        
+                                    print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                                    print('Lucro:' + str(round(lucro, 2)))
+                                    
+                                    time.sleep(5)
+                                    mta = stop(ganhos,percas)
+                                    if mta:
+                                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                        sys.exit()
+                                    
+                                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                    if trabalho == 'scalper1':
+                                        buscar()
+                                    elif trabalho == 'scalper2':    
+                                        SCALPER(parfixo, padraoTrabalho)
+                                    break
+
+                                if lucro > 0:
+                                    VTS += 1
+                                    ganhos += round(lucro, 2)
+                                    atual += round(lucro, 2)
+                                    ban = round(banca(), 2)
+                                    VIT += 1
+                                    lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                    
+                                    inicio(ganhos, percas, atual)
+                                                        
+                                    print(f'{Vermelho}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                                    print('Lucro:' + str(round(lucro, 2)))
+                                    
+                                    time.sleep(5)
+                                    mta = stop(ganhos,percas)
+                                    if mta:
+                                        print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                        sys.exit()
+                                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                    if trabalho == 'scalper1':
+                                        buscar()
+                                    elif trabalho == 'scalper2':    
+                                        SCALPER(parfixo, padraoTrabalho)
+                                    break
+                    else:    
+                        Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                else:
+                    print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+            
+
+           
+    else:
+        dica = tendencia(par)
+        print(f'Tendencia = {dica}')
+        if direcao.upper() == dica.upper():
+            if opcao == 'binaria':
+                ban = round(banca(), 2)
+                entrada = 'R$ {:,.2f}'.format(quantidade)
+                print('Entrada a ser realizada, valor '+str(entrada)+' - '+str(ativo))
+                print(f'Direção: {direcao}\n')
+                if pulos == 0:
+                    status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                    if id:
+                        Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                elif pulos == 1 and velasM == 'M1': 
+                    time.sleep(60)
+                    status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                    if id:
+                        Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                elif pulos == 2 and velasM == 'M1':
+                    time.sleep(120)
+                    status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                    if id:
+                        Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                elif pulos == 1 and velasM == 'M5':
+                    time.sleep(300)
+                    status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                    if id:
+                        Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                elif pulos == 2 and velasM == 'M5':
+                    time.sleep(600)
+                    status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                    if id:
+                        Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                
+            elif opcao == 'digital':
+                ban = round(banca(), 2)
+                entrada = 'R$ {:,.2f}'.format(quantidade)
+                print('Entrada a ser realizada, valor '+str(entrada)+' - '+str(ativo))
+                print(f'Direção: {direcao}\n')
+                
+                if pulos == 0:
+                    status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
+                    if id:
+                        if trabalho == 'scalper1' or trabalho == 'scalper2':
+                        
+                            iq.subscribe_strike_list(ativo, tempo)
+
+                            status,id = iq.buy_digital_spot(ativo, quantidade, direcao, tempo)
+                            time.sleep(2)
+
+                            while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+                                vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+                                
+                                data = datas()
+                                hora = horario()
+                                
+                                print(f'{Verde}Atual: R$ {vpv}{Reset} - {Amarelo}Minimo para aceitar: R$ {S_valor_minimo}{Reset}', end='\r')
+                                
+                                
+                                if vpv > S_valor_minimo:
+                                    print('Fechando operação')
+                                    iq.close_digital_option(id)
+                                    
+                                
+                                time.sleep(0.3)
+                                
+                                status,lucro = iq.check_win_digital_v2(id)
+                            
+                                if status:
+                                    if lucro < 0:
+                                        VTS = 0
+                                        percas += round(lucro, 2)
+                                        atual += round(lucro, 2)
+                                        ban = round(banca(), 2)
+                                        DER += 1
+                                        lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                        
+                                        inicio(ganhos, percas, atual)
+                                                            
+                                        print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                                        print('Lucro:' + str(round(lucro, 2)))
+                                        
+                                        time.sleep(5)
+                                        mta = stop(ganhos,percas)
+                                        if mta:
+                                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                            sys.exit()
+                                        
+                                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                        if trabalho == 'scalper1':
+                                            buscar()
+                                        elif trabalho == 'scalper2':    
+                                            SCALPER(parfixo, padraoTrabalho)
+                                        break
+
+                                    if lucro > 0:
+                                        VTS += 1
+                                        ganhos += round(lucro, 2)
+                                        atual += round(lucro, 2)
+                                        ban = round(banca(), 2)
+                                        VIT += 1
+                                        lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                        
+                                        inicio(ganhos, percas, atual)
+                                                            
+                                        print(f'{Vermelho}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                                        print('Lucro:' + str(round(lucro, 2)))
+                                        
+                                        time.sleep(5)
+                                        mta = stop(ganhos,percas)
+                                        if mta:
+                                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                            sys.exit()
+                                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                        if trabalho == 'scalper1':
+                                            buscar()
+                                        elif trabalho == 'scalper2':    
+                                            SCALPER(parfixo, padraoTrabalho)
+                                        break
+                        else:    
+                            Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                elif pulos == 1 and velasM == 'M1': 
+                    time.sleep(60)
+                    status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
+                    if id:
+                        if trabalho == 'scalper1' or trabalho == 'scalper2':
+                        
+                            iq.subscribe_strike_list(ativo, tempo)
+
+                            status,id = iq.buy_digital_spot(ativo, quantidade, direcao, tempo)
+                            time.sleep(2)
+
+                            while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+                                vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+                                
+                                data = datas()
+                                hora = horario()
+                                
+                                print(f'{Verde}Atual: R$ {vpv}{Reset} - {Amarelo}Minimo para aceitar: R$ {S_valor_minimo}{Reset}', end='\r')
+                                
+                                
+                                if vpv > S_valor_minimo:
+                                    print('Fechando operação')
+                                    iq.close_digital_option(id)
+                                    
+                                
+                                time.sleep(0.3)
+                                
+                                status,lucro = iq.check_win_digital_v2(id)
+                            
+                                if status:
+                                    if lucro < 0:
+                                        VTS = 0
+                                        percas += round(lucro, 2)
+                                        atual += round(lucro, 2)
+                                        ban = round(banca(), 2)
+                                        DER += 1
+                                        lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                        
+                                        inicio(ganhos, percas, atual)
+                                                            
+                                        print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                                        print('Lucro:' + str(round(lucro, 2)))
+                                        
+                                        time.sleep(5)
+                                        mta = stop(ganhos,percas)
+                                        if mta:
+                                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                            sys.exit()
+                                        
+                                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                        if trabalho == 'scalper1':
+                                            buscar()
+                                        elif trabalho == 'scalper2':    
+                                            SCALPER(parfixo, padraoTrabalho)
+                                        break
+
+                                    if lucro > 0:
+                                        VTS += 1
+                                        ganhos += round(lucro, 2)
+                                        atual += round(lucro, 2)
+                                        ban = round(banca(), 2)
+                                        VIT += 1
+                                        lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                        
+                                        inicio(ganhos, percas, atual)
+                                                            
+                                        print(f'{Vermelho}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                                        print('Lucro:' + str(round(lucro, 2)))
+                                        
+                                        time.sleep(5)
+                                        mta = stop(ganhos,percas)
+                                        if mta:
+                                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                            sys.exit()
+                                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                        if trabalho == 'scalper1':
+                                            buscar()
+                                        elif trabalho == 'scalper2':    
+                                            SCALPER(parfixo, padraoTrabalho)
+                                        break
+                        else:    
+                            Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                elif pulos == 2 and velasM == 'M1':
+                    time.sleep(120)
+                    status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
+                    if id:
+                        if trabalho == 'scalper1' or trabalho == 'scalper2':
+                        
+                            iq.subscribe_strike_list(ativo, tempo)
+
+                            status,id = iq.buy_digital_spot(ativo, quantidade, direcao, tempo)
+                            time.sleep(2)
+
+                            while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+                                vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+                                
+                                data = datas()
+                                hora = horario()
+                                
+                                print(f'{Verde}Atual: R$ {vpv}{Reset} - {Amarelo}Minimo para aceitar: R$ {S_valor_minimo}{Reset}', end='\r')
+                                
+                                
+                                if vpv > S_valor_minimo:
+                                    print('Fechando operação')
+                                    iq.close_digital_option(id)
+                                    
+                                
+                                time.sleep(0.3)
+                                
+                                status,lucro = iq.check_win_digital_v2(id)
+                            
+                                if status:
+                                    if lucro < 0:
+                                        VTS = 0
+                                        percas += round(lucro, 2)
+                                        atual += round(lucro, 2)
+                                        ban = round(banca(), 2)
+                                        DER += 1
+                                        lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                        
+                                        inicio(ganhos, percas, atual)
+                                                            
+                                        print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                                        print('Lucro:' + str(round(lucro, 2)))
+                                        
+                                        time.sleep(5)
+                                        mta = stop(ganhos,percas)
+                                        if mta:
+                                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                            sys.exit()
+                                        
+                                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                        if trabalho == 'scalper1':
+                                            buscar()
+                                        elif trabalho == 'scalper2':    
+                                            SCALPER(parfixo, padraoTrabalho)
+                                        break
+
+                                    if lucro > 0:
+                                        VTS += 1
+                                        ganhos += round(lucro, 2)
+                                        atual += round(lucro, 2)
+                                        ban = round(banca(), 2)
+                                        VIT += 1
+                                        lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                        
+                                        inicio(ganhos, percas, atual)
+                                                            
+                                        print(f'{Vermelho}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                                        print('Lucro:' + str(round(lucro, 2)))
+                                        
+                                        time.sleep(5)
+                                        mta = stop(ganhos,percas)
+                                        if mta:
+                                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                            sys.exit()
+                                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                        if trabalho == 'scalper1':
+                                            buscar()
+                                        elif trabalho == 'scalper2':    
+                                            SCALPER(parfixo, padraoTrabalho)
+                                        break
+                        else:    
+                            Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                elif pulos == 1 and velasM == 'M5':
+                    time.sleep(300)
+                    status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
+                    if id:
+                        if trabalho == 'scalper1' or trabalho == 'scalper2':
+                        
+                            iq.subscribe_strike_list(ativo, tempo)
+
+                            status,id = iq.buy_digital_spot(ativo, quantidade, direcao, tempo)
+                            time.sleep(2)
+
+                            while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+                                vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+                                
+                                data = datas()
+                                hora = horario()
+                                
+                                print(f'{Verde}Atual: R$ {vpv}{Reset} - {Amarelo}Minimo para aceitar: R$ {S_valor_minimo}{Reset}', end='\r')
+                                
+                                
+                                if vpv > S_valor_minimo:
+                                    print('Fechando operação')
+                                    iq.close_digital_option(id)
+                                    
+                                
+                                time.sleep(0.3)
+                                
+                                status,lucro = iq.check_win_digital_v2(id)
+                            
+                                if status:
+                                    if lucro < 0:
+                                        VTS = 0
+                                        percas += round(lucro, 2)
+                                        atual += round(lucro, 2)
+                                        ban = round(banca(), 2)
+                                        DER += 1
+                                        lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                        
+                                        inicio(ganhos, percas, atual)
+                                                            
+                                        print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                                        print('Lucro:' + str(round(lucro, 2)))
+                                        
+                                        time.sleep(5)
+                                        mta = stop(ganhos,percas)
+                                        if mta:
+                                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                            sys.exit()
+                                        
+                                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                        if trabalho == 'scalper1':
+                                            buscar()
+                                        elif trabalho == 'scalper2':    
+                                            SCALPER(parfixo, padraoTrabalho)
+                                        break
+
+                                    if lucro > 0:
+                                        VTS += 1
+                                        ganhos += round(lucro, 2)
+                                        atual += round(lucro, 2)
+                                        ban = round(banca(), 2)
+                                        VIT += 1
+                                        lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                        
+                                        inicio(ganhos, percas, atual)
+                                                            
+                                        print(f'{Vermelho}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                                        print('Lucro:' + str(round(lucro, 2)))
+                                        
+                                        time.sleep(5)
+                                        mta = stop(ganhos,percas)
+                                        if mta:
+                                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                            sys.exit()
+                                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                        if trabalho == 'scalper1':
+                                            buscar()
+                                        elif trabalho == 'scalper2':    
+                                            SCALPER(parfixo, padraoTrabalho)
+                                        break
+                        else:    
+                            Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                elif pulos == 2 and velasM == 'M5':
+                    time.sleep(600)
+                    status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
+                    if id:
+                        if trabalho == 'scalper1' or trabalho == 'scalper2':
+                        
+                            iq.subscribe_strike_list(ativo, tempo)
+
+                            status,id = iq.buy_digital_spot(ativo, quantidade, direcao, tempo)
+                            time.sleep(2)
+
+                            while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+                                vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+                                
+                                data = datas()
+                                hora = horario()
+                                
+                                print(f'{Verde}Atual: R$ {vpv}{Reset} - {Amarelo}Minimo para aceitar: R$ {S_valor_minimo}{Reset}', end='\r')
+                                
+                                
+                                if vpv > S_valor_minimo:
+                                    print('Fechando operação')
+                                    iq.close_digital_option(id)
+                                    
+                                
+                                time.sleep(0.3)
+                                
+                                status,lucro = iq.check_win_digital_v2(id)
+                            
+                                if status:
+                                    if lucro < 0:
+                                        VTS = 0
+                                        percas += round(lucro, 2)
+                                        atual += round(lucro, 2)
+                                        ban = round(banca(), 2)
+                                        DER += 1
+                                        lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                        
+                                        inicio(ganhos, percas, atual)
+                                                            
+                                        print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
+                                        print('Lucro:' + str(round(lucro, 2)))
+                                        
+                                        time.sleep(5)
+                                        mta = stop(ganhos,percas)
+                                        if mta:
+                                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                            sys.exit()
+                                        
+                                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                        if trabalho == 'scalper1':
+                                            buscar()
+                                        elif trabalho == 'scalper2':    
+                                            SCALPER(parfixo, padraoTrabalho)
+                                        break
+
+                                    if lucro > 0:
+                                        VTS += 1
+                                        ganhos += round(lucro, 2)
+                                        atual += round(lucro, 2)
+                                        ban = round(banca(), 2)
+                                        VIT += 1
+                                        lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
+                                        
+                                        inicio(ganhos, percas, atual)
+                                                            
+                                        print(f'{Vermelho}{ativo} | {direcao.upper()} | VITORIA{Reset}')
+                                        print('Lucro:' + str(round(lucro, 2)))
+                                        
+                                        time.sleep(5)
+                                        mta = stop(ganhos,percas)
+                                        if mta:
+                                            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+                                            sys.exit()
+                                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),('WIN' if lucro > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+                                        if trabalho == 'scalper1':
+                                            buscar()
+                                        elif trabalho == 'scalper2':    
+                                            SCALPER(parfixo, padraoTrabalho)
+                                        break
+                        else:    
+                            Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                
+            
+        else:
+            print('ENTRADA CONTRA TENDENCIA, IREI RECUSAR ESTA...')
+            time.sleep(2)
+            if trabalho == 'lista':  
+                lista_sinais()
+            elif trabalho == 'fixo':
+                entradas_fixas(parfixo, padraoTrabalho)
+            elif trabalho == 'scalper1':
+                buscar()
+            elif trabalho == 'scalper2':    
+                SCALPER(parfixo, padraoTrabalho)
+            else:
+                buscar()
+
+def entradas_fixas(parfixo, padraoTrabalho):
+    global TEND
+    global iqo_api
+    global percent
+    global paym
+    global percas
+    global ganhos
+    global velasM
+    global VT_seguidas
+    global BWIN
+    global BG1
+    global BG2
+    global BHIT
+    global BDOJI
+    global opcao
+    global operacao
+            
+    #paym = str(ui.lineEdit_8.text())
+
+    
+    print('BUSCANDO...')
+        
+    
+    mta = stop(ganhos,percas)
+
+    if operacao == 'binaria':
+        opcao = "binaria"
+        #inicio(ganhos, percas, atual)
+    elif operacao == 'digital':
+        opcao = "digital"
+        #inicio(ganhos, percas, atual)
+    else:
+        opcao = "digital"
+    
+    while True:
+        if mta:
+            print('!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+            break
+            
+        else:
+            if padraoTrabalho == 'MHI':
+                MHI0()
+                break
+            
+            elif padraoTrabalho == 'MHI2':
+                MHI_2()
+                break
+                
+            elif padraoTrabalho == 'MHI3':
+                MHI_3()
+                break
+                
+            elif padraoTrabalho == 'MHI2_Maioria':
+                MHI2_MAIORIA()
+                break
+                
+            elif padraoTrabalho == 'MHI3_Maioria':
+                MHI3_MAIORIA()
+                break
+                
+            elif padraoTrabalho == 'Milhao_Minoria':
+                MILHAO_MINORIA()
+                break
+                
+            elif padraoTrabalho == 'Milhao_Maioria':
+                MILHAO_MAIORIA()
+                break
+                
+            elif padraoTrabalho == 'Padrao_Impar':
+                PADRAO_IMPAR()
+                break
+                
+            elif padraoTrabalho == 'Torres_Gemeas':
+                TORRES_GEMEAS()
+                break
+                
+            elif padraoTrabalho == 'Tres_Mosqueteiros':
+                TRES_MOSQUETEIROS()
+                break
+                        
+            elif padraoTrabalho == 'Melhor_de_3':
+                MELHOR_DE_3()
+                break
+                
+            elif padraoTrabalho == 'Padrao_23':
+                PADRAO_23()
+                break
+                
+            elif padraoTrabalho == 'MHI_Maioria':
+                MHI_MAIORIA()    
+                break   
+
+            elif padraoTrabalho == 'Five_Flip':
+                FIVE_FLIP()    
+                break
+
+            elif padraoTrabalho == 'Tres_vizinhos':
+                TRES_VIZINHOS()    
+                break
+            
+            elif padraoTrabalho == 'MHI_de_Meio_Ciclo':
+                MHI_MEIO()
+                break
+            elif padraoTrabalho == 'Mobtrader_1':
+                MOBT1()
+                break
+            elif padraoTrabalho == 'Mobtrader_I':
+                MOBTI()
+                break
+            elif padraoTrabalho == 'Mobtrader_S':
+                MOBTS()
+                break
+            else:
+                
+                entradas_fixas(parfixo, padraoTrabalho)
+                break
+
+def SCALPER(parfixo, padraoTrabalho):
+    global paridade
+    global opcao
+    global TEND
+    global trabalho
+    global op_definida
+    global iqo_api
+    global S_valor_minimo
+    
+
+    paridade = parfixo
+    
+
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
+    while True:
+        
+        
+        print('Scalper somente na digital....')
+        if velasM == 'M1':
+            opcao = 'digital'
+        elif velasM == 'M5':
+            opcao = 'digital'
+                    
+        
+        inicio(ganhos, percas, atual)
+                    
+        mta = stop(ganhos,percas)
+        
+        if mta:
+            print('\n!!! MOBTRADER BOT, RESPEITE SEU GERENCIAMENTO!!!')
+            sys.exit()
+            
+        else:
+            if padraoTrabalho == 'MHI':
+                c3 = False
+                MHI0()
+                break
+            
+            elif padraoTrabalho == 'MHI2':
+                c3 = False
+                MHI_2()
+                break
+                
+            elif padraoTrabalho == 'MHI3':
+                c3 = False
+                MHI_3()
+                break
+                
+            elif padraoTrabalho == 'MHI2_Maioria':
+                c3 = False
+                MHI2_MAIORIA()
+                break
+                
+            elif padraoTrabalho == 'MHI3_Maioria':
+                c3 = False
+                MHI3_MAIORIA()
+                break
+                
+            elif padraoTrabalho == 'Milhao_Minoria':
+                c3 = False
+                MILHAO_MINORIA()
+                break
+                
+            elif padraoTrabalho == 'Milhao_Maioria':
+                c3 = False
+                MILHAO_MAIORIA()
+                break
+                
+            elif padraoTrabalho == 'Padrao_Impar':
+                c3 = False
+                PADRAO_IMPAR()
+                break
+                
+            elif padraoTrabalho == 'Torres_Gemeas':
+                c3 = False
+                TORRES_GEMEAS()
+                break
+                
+            elif padraoTrabalho == 'Tres_Mosqueteiros':
+                c3 = False
+                TRES_MOSQUETEIROS()
+                break
+                          
+            elif padraoTrabalho == 'Melhor_de_3':
+                c3 = False
+                MELHOR_DE_3()
+                break
+                
+            elif padraoTrabalho == 'Padrao_23':
+                c3 = False
+                PADRAO_23()
+                break
+                
+            elif padraoTrabalho == 'MHI_Maioria':
+                c3 = False
+                MHI_MAIORIA()    
+                break   
+
+            elif padraoTrabalho == 'Five_Flip':
+                c3 = False
+                FIVE_FLIP()    
+                break
+
+            elif padraoTrabalho == 'Tres_vizinhos':
+                c3 = False
+                TRES_VIZINHOS()    
+                break
+            
+            elif padraoTrabalho == 'MHI_de_Meio_Ciclo':
+                c3 = False
+                MHI_MEIO()    
+                break
+            else:
+                time.sleep(10)
+                SCALPER(parfixo, padraoTrabalho)
+                break
+
+def lista_sinais():
+    global quantidade
+    global gales
+    global FL
+    global iqo_api
+    global paym
+    global DER
+    global VIT
+    global atual
+    global opcao
+    global padrao
+    global paridade
+    
+    opcao = 'digital'
+    lista = carregar_sinais()
+
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+
+    grana = 'R$ {:,.2f}'.format(atual)
+    perdeu = DER
+    ganhou = VIT
+
+
+    os.system('cls' if os.name == 'nt' else 'clear')
+    while True:
+        to = 0
+        data = datetime.now() .strftime('%Y-%m-%d %H:%M:%S')
+        i = 0
+
+        print(f'{Amarelo} LOSS: {perdeu} / WIN: {ganhou} = Lucros: {grana} {Reset} - ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        
+        for sinal in lista:
+            to = to + 1
+            dados = sinal.split(',')
+            dia = (str(dados[0]))
+            hora = (dados[1])+':00'
+            moeda = (str(dados[2])).upper()
+            direcao = (dados[3]).lower()
+            timeframe = (dados[4]).upper()
+
+            agora = datetime.now()
+            data_atual = agora.strftime('%d')
+
+            hora_pay = datetime.now() + timedelta(seconds=40)
+            hora_atual_pay = hora_pay.strftime('%H:%M:%S')
+            
+            now = datetime.now() + timedelta(seconds=3)
+            hora_atual = now.strftime('%H:%M:%S')
+
+            entrada = float(quantidade)
+
+            if timeframe == 'M1':
+                    tempo = 1
+            elif timeframe == 'M5':
+                    tempo = 5
+            elif timeframe == 'M15':
+                    tempo = 15
+            elif timeframe == 'M30':
+                    tempo = 30
+            elif timeframe == 'H1':
+                    tempo = 60
+            paridade = moeda
+            padrao = 'LISTA'
+            opcao = 'digital'
+            if data_atual == dia:
+                #print(hora_atual, hora)
+                
+                if hora_atual == hora:
+                    time.sleep(0.5)
+                    inicio(ganhos, percas, atual)
+                    if opcao == 'binaria':
+                        entrada = 'R$ {:,.2f}'.format(quantidade)
+                        print('Entrada realizada, valor '+str(entrada)+' - '+str(moeda))
+                        print(f'Direção: {direcao.upper()}\n')
+                                                
+                        status,id = iq.buy(float(quantidade), str(moeda), str(direcao), int(tempo))
+                        
+                        Verifica_status(id,moeda,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,timeframe)
+                    
+                                                
+                    elif opcao == 'digital':
+                        ban = round(banca(), 2)
+                        entrada = 'R$ {:,.2f}'.format(quantidade)
+                        print('Entrada realizada, valor '+str(entrada)+' - '+str(moeda))
+                        print(f'Direção: {direcao.upper()}\n')
+                        
+                        
+                        status,id = iq.buy_digital_spot_v2(str(moeda),float(quantidade),str(direcao), int(tempo))
+                        
+                        Verifica_status_D(id,moeda,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,timeframe)
+                        
+                    
+                    else:
+                        ban = round(banca(), 2)
+                        entrada = 'R$ {:,.2f}'.format(quantidade)
+                        print('Entrada realizada, valor '+str(entrada)+' - '+str(moeda))
+                        print(f'Direção: {direcao.upper()}\n')
+                        
+                        
+                        status,id = iq.buy_digital_spot_v2(str(moeda),float(quantidade),str(direcao), int(tempo))
+                        
+                        Verifica_status_D(id,moeda,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,timeframe)
+                        
+        
+        time.sleep(1)
+
+def Verifica_status_SCALPER(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2):
+    global LC
+    global stop_loss
+    global stop_win
+    global BANCAINICIAL
+    global ganhos
+    global percas
+    global atual
+    global ban
+    global v2
+    global v0
+    global c3
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global VIT
+    global DER
+    global VTS
+    global conta
+    global resu
+    global luc
+    global quant
+    global ENT
+    global trabalho
+    global moeda
+    global timeframe
+    global parfixo
+    global padraoTrabalho
+    global S_valor_minimo
+    global S_porcentagem_lucro
+    
+    iq.subscribe_strike_list(paridade, tempo)
+    if isinstance(id, int):
+      
+        while iq.get_async_order(id)['position-changed']['msg']['status'] == 'open':
+            vpv = round(iq.get_digital_spot_profit_after_sale(id), 2)
+
+            data = datas()
+            hora = horario()
+            
+            print(f'{Verde}Atual: R$ {vpv}{Reset} - {Verde}Minimo para aceitar: R$ {S_valor_minimo}{Reset}', end='\r')
+            
+            
+            if vpv > S_valor_minimo:
+                print('Fechando operação')
+                iq.close_digital_option(id)
+                break
+            
+            time.sleep(0.3)
+            
+        status,valor = iq.check_win_digital_v2(id)
+        lucro = quantidade + valor 
+        print('Resultado da operação: ' + ('WIN - ' if valor > 0 else 'LOSS - ') + str(round(valor, 2)))
+        alerta(round(quantidade, 2),round(lucro, 2),round(valor, 2),('WIN' if valor > 0 else 'LOSS'),direcao.upper(),padrao.upper(),ativo,data,hora)
+        SCALPER(parfixo, padraoTrabalho)
+# === PADROES =====================
+
+def MHI0():
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global sorosmao
+    global ENT
+    global gales
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.01 and minutos <= 5) or minutos >= 9.01 else False
+            
+            
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.01 and minutos <= 30) or minutos >= 59.01 else False
+            
+            
+                              
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        
+        hora = horario()
+        
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2]
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if verd > verme: 
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            elif verme > verd: 
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()
+           
+            if dir:
+                direcao = str(dir)
+                ativo = str(par)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                break
+
+def MHI_2():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2]
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if verd > verme: 
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            elif verme > verd: 
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                if velasM == 'M1':
+                    time.sleep(60)
+                elif velasM == 'M5':
+                    time.sleep(300)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                        
+
+                    
+        time.sleep(1)
+
+def MHI_3():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2]
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if verd > verme: 
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            elif verme > verd: 
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar() 
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                if velasM == 'M1':
+                    time.sleep(120)
+                elif velasM == 'M5':
+                    time.sleep(600)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                        
+
+                    
+        time.sleep(1)
+    
+def MHI_MAIORIA():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2]
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if verd > verme: 
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            elif verme > verd: 
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()  
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                #time.sleep(60)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                        
+                    
+        time.sleep(1)
+    
+def MHI2_MAIORIA():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2]
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if verd > verme: 
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            elif verme > verd: 
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()  
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                if velasM == 'M1':
+                    time.sleep(60)
+                elif velasM == 'M5':
+                    time.sleep(300)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                        
+                    
+        time.sleep(1)
+
+def MHI3_MAIORIA():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2]
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if verd > verme: 
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            elif verme > verd: 
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()   
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                if velasM == 'M1':
+                    time.sleep(120)
+                elif velasM == 'M5':
+                    time.sleep(600)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                        
+                    
+        time.sleep(1)
+
+def MILHAO_MAIORIA():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+
+                cores = velas[0] + ' ' + velas[1] + ' ' + velas[2] + ' ' + velas[3]	+ ' ' + velas[4]
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+                velas[5] = 'verde' if velas[5]['open'] < velas[5]['close'] else 'vermelha' if velas[5]['open'] > velas[5]['close'] else 'doji'
+
+                cores = velas[0] + ' ' + velas[1] + ' ' + velas[2] + ' ' + velas[3]	+ ' ' + velas[4]+ ' ' + velas[5]
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+            
+            
+                cores = velas[0] + ' ' + velas[1] + ' ' + velas[2] + ' ' + velas[3]	+ ' ' + velas[4]
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if verd > verme: 
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            elif verme > verd: 
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR EMPATE OU DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()
+                
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                #time.sleep(60)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                        
+                    
+        time.sleep(1)
+
+def MILHAO_MINORIA():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+
+                cores = velas[0] + ' ' + velas[1] + ' ' + velas[2] + ' ' + velas[3]	+ ' ' + velas[4]
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+                velas[5] = 'verde' if velas[5]['open'] < velas[5]['close'] else 'vermelha' if velas[5]['open'] > velas[5]['close'] else 'doji'
+
+                cores = velas[0] + ' ' + velas[1] + ' ' + velas[2] + ' ' + velas[3]	+ ' ' + velas[4]+ ' ' + velas[5]
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+            
+            
+                cores = velas[0] + ' ' + velas[1] + ' ' + velas[2] + ' ' + velas[3]	+ ' ' + velas[4]	
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if verd > verme: 
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            elif verme > verd: 
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                #time.sleep(60)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                        
+                    
+        time.sleep(1)
+
+def TRES_VIZINHOS():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 2.58 and minutos <= 5) or minutos >= 7.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 19.58 and minutos <= 30) or minutos >= 49.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+            
+            
+            cor = velas[0]
+            #print(cores)
+
+            if cor == 'verde':
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            elif cor == 'vermelha':
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                #time.sleep(60)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                        
+                    
+        time.sleep(1)
+
+def PADRAO_IMPAR():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            
+            cor = velas[2]
+            #print(cores)
+
+            if cor == 'verde':
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            elif cor == 'vermelha':
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                #time.sleep(60)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+        
+        time.sleep(1)
+
+def MELHOR_DE_3():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 4, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 4, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 4, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+            
+            cores = velas[1] + ' ' + velas[2] + ' ' + velas[3]
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if verd > verme: 
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            elif verme > verd: 
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()  
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                time.sleep(120)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+
+
+        time.sleep(1)
+
+def TRES_MOSQUETEIROS():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if minutos == 2.58 or minutos == 7.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if minutos == 9.58 or minutos == 24.58 or minutos == 39.58 or minutos == 54.58 else False
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 1, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+               
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 1, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+               
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 1, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                        
+            cor = velas[0]	
+            #print(cor)
+
+            if cor == 'verde':
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            elif cor == 'vermelha':
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                #time.sleep(60)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+
+
+        time.sleep(1)
+
+def FIVE_FLIP():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 3.58 and minutos <= 5) or minutos >= 8.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 24.58 and minutos <= 30) or minutos >= 54.58 else False
+        
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 4, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 4, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 4, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+            
+            cor = velas[0]
+            #print(cores)
+
+            if cor == 'verde':
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            elif cor == 'vermelha':
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()
+
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                #time.sleep(60)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+        
+        time.sleep(1)
+
+def C30():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global v2
+    global v0
+    global v4
+    global c3
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 5.58 and minutos <= 30) else False
+        elif velasM == 'M15':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 5.58 and minutos <= 60) else False
+        #print('Aguardando: '+str(minutos))
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        #time.sleep(0.5)
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+            
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+            
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+            
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2] + ' ' + velas[3] + ' ' + velas[4]
+           
+
+            v4 = velas[4]
+            v2 = velas[2]
+            v0 = velas[0]
+            #print(cores)
+        
+            if velas[4] == 'verde':
+                dir = 'call'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            elif velas[4] == 'vermelha':
+                dir = 'put'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            else:
+                dir = False
+                STP = True   
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                #time.sleep(60)
+                if opcao == 'binaria':
+                    ban = round(banca(), 2)
+                    entrada = 'R$ {:,.2f}'.format(quantidade)
+                    print('Entrada a ser realizada, valor '+str(entrada)+' - '+str(ativo))
+                    print(f'Direção: {dir}\n')
+                    
+                    status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
+                    if id:
+                        Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                        
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                    break
+                                       
+                        
+                elif opcao == 'digital':
+                    ban = round(banca(), 2)
+                    entrada = 'R$ {:,.2f}'.format(quantidade)
+                    print('Entrada a ser realizada, valor '+str(entrada)+' - '+str(ativo))
+                    print(f'Direção: {dir}\n')
+                
+                    status,id = iq.buy_digital_spot(str(ativo),float(quantidade),str(direcao), int(tempo))
+                    if id:
+                        Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                        
+                    else:
+                        print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
+
+                    break
+                    
+        time.sleep(1)
+
+def TORRES_GEMEAS():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+   
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 3.58 and minutos <= 5) or minutos >= 8.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 24.58 and minutos <= 30) or minutos >= 54.58 else False
+        
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 4, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                
+                corvela = velas[3]
+
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 5, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+                
+                corvela = velas[4]
+
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 4, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+                
+            
+            cores = corvela		
+            #print(cores)
+
+            if cores == 'verde':
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            elif cores == 'vermelha':
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar() 
+                
+                
+            
+            if dir:
+                direcao = str(dir)
+                ativo = str(par)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                break
+                    
+        time.sleep(1)
+   
+def PADRAO_23():
+    global gales
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if minutos == 0.58 or minutos == 5.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if minutos == 9.58  or minutos == 39.58 else False
+        
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        
+                    
+        #ui.listWidget_2.insertItem(0, 'Hora de entrar? '+str(entrar)+'/ Minutos: '+str(minutos))
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            print('Verificando cores..')
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 1, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                corvela = velas[0]
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 2, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                
+                corvela = velas[1]
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 1, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+            
+            cores = corvela	
+            #print(cores)
+            if cores == 'verde':
+                if inverter:
+                    dir = 'put'
+                else:
+                    dir = 'call'
+                print(f'{Verde}{padrao} = {dir}{Reset}')
+            elif cores == 'vermelha':
+                if inverter:
+                    dir = 'call'
+                else:
+                    dir = 'put'
+                print(f'{Vermelho}{padrao} = {dir}{Reset}')
+            else:
+                print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if trabalho == 'lista':  
+                    lista_sinais()
+                elif trabalho == 'fixo':
+                    entradas_fixas(parfixo, padraoTrabalho)
+                elif trabalho == 'scalper1':
+                    buscar()
+                elif trabalho == 'scalper2':
+                    SCALPER(parfixo, padraoTrabalho)
+                else:
+                    buscar()  
+                
+                
+            
+            if dir:
+                #print('Direção: '+str(dir))
+                direcao = str(dir)
+                ativo = str(par)
+                #time.sleep(60)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+        
+        time.sleep(1)
+
+def MHI_MEIO():
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global sorosmao
+    global ENT
+    global gales
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if trabalho == 'fixo' or trabalho == 'scalper2':
+        paridade = parfixo
+        padrao = padraoTrabalho
+
+
+
+
+    
+    NV = int(gales)
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(velasM)
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+
+    inicio(ganhos, percas, atual)
+    print(f'AGUARDE, BUSCANDO PADRÃO {padrao.upper()}\n')
+    
+    while True:
+        #print(str(round(LC, 2)))                         
+        #print(str(round(BANCA_ATUAL, 2)))
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos == 1.58 or minutos == 4.58 and minutos <= 5) or minutos == 6.58 or minutos == 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos == 14.58 or minutos == 29.58 and minutos <= 30) or minutos == 44.58 or minutos == 59.58 else False
+                             
+        
+        print('Aguardando: ' + datetime.now().strftime('%H:%M:%S'), end='\r')
+        
+        hora = horario()
+        if entrar:
+            inicio(ganhos, percas, atual)
+            #print('Iniciando operação!')
+            dir = False
+            
+            if velasM == 'M1':
+                velas = iq.get_candles(par, 60, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            if velasM == 'M5':
+                velas = iq.get_candles(par, 300, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+                
+            if velasM == 'M15':
+                velas = iq.get_candles(par, 900, 3, time.time())
+            
+                velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+                velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+                velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2]
+            
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if velasM == 'M1':
+                if velas[0] == 'verde' and velas[1] == 'vermelha': 
+                    if inverter:
+                        dir = 'put'
+                    else:
+                        dir = 'call'
+                    print(f'{Verde}{padrao} = {dir}{Reset}')
+                elif velas[0] == 'vermelha' and velas[1] == 'verde': 
+                    if inverter:
+                        dir = 'call'
+                    else:
+                        dir = 'put'
+                    print(f'{Vermelho}{padrao} = {dir}{Reset}')
+                elif velas[0] == 'vermelha' and velas[1] == 'vermelha': 
+                    if inverter:
+                        dir = 'put'
+                    else:
+                        dir = 'call'
+                    print(f'{Verde}{padrao} = {dir}{Reset}')
+                elif velas[0] == 'verde' and velas[1] == 'verde': 
+                    if inverter:
+                        dir = 'call'
+                    else:
+                        dir = 'put'
+                    print(f'{Vermelho}{padrao} = {dir}{Reset}')
+                else:
+                    print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                    dir = False
+                    STP = True   
+                    if trabalho == 'lista':  
+                        lista_sinais()
+                    elif trabalho == 'fixo':
+                        entradas_fixas(parfixo, padraoTrabalho)
+                    elif trabalho == 'scalper1':
+                        buscar()
+                    elif trabalho == 'scalper2':
+                        SCALPER(parfixo, padraoTrabalho)
+                    else:
+                        buscar()
+            if velasM == 'M5':
+                if verd > verme: 
+                    if inverter:
+                        dir = 'call'
+                    else:
+                        dir = 'put'
+                    print(f'{Vermelho}{padrao} = {dir}{Reset}')
+                elif verme > verd: 
+                    if inverter:
+                        dir = 'put'
+                    else:
+                        dir = 'call'
+                    print(f'{Verde}{padrao} = {dir}{Reset}')
+                else:
+                    print('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                    dir = False
+                    STP = True   
+                    if trabalho == 'lista':  
+                        lista_sinais()
+                    elif trabalho == 'fixo':
+                        entradas_fixas(parfixo, padraoTrabalho)
+                    elif trabalho == 'scalper1':
+                        buscar()
+                    elif trabalho == 'scalper2':
+                        SCALPER(parfixo, padraoTrabalho)
+                    else:
+                        buscar()
+            if dir:
+                direcao = str(dir)
+                ativo = str(par)
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par)
+                break
+
+def MOBT1():
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global sorosmao
+    global ENT
+    global gales
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if str(ui.comboBox_8.currentText()) == 'FIXO':
+        paridade = str(ui.comboBox_9.currentText())
+        padrao = str(ui.comboBox_10.currentText())
+
+    if ui.checkBox.isChecked():
+        quantidade = float(quantidade)*float(banca())/100
+    if ui.checkBox_2.isChecked():
+        stop_win = float(stop_win)*float(banca())/100
+    if ui.checkBox_3.isChecked():
+        stop_loss = float(stop_loss)*float(banca())/100
+
+
+    
+    NV = int(ui.comboBox_2.currentText())
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(ui.comboBox.currentText())
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+    velasM = ui.comboBox.currentText()
+    
+    ui.label_28.setText(f'AGUARDE... {padrao.upper()}')
+    while True:
+        app.processEvents()
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+                            
+        
+        ui.label_11.setText(datetime.now().strftime('%H:%M:%S'))
+        
+        hora = horario()
+        if entrar:
+            ui.label_28.setText('Iniciando operação mobtrader 1')
+            dir = False
+            ui.label_28.setText('Verificando cores das velas..')
+            velas = iq.get_candles(par, 60, 5, time.time())
+            
+            velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+            velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+            velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+            velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2] + ' ' + velas[3]	+ ' ' + velas[4]	
+            #print(cores)
+                                
+            if velas[0] == 'verde' and velas[1] == 'verde' and velas[2] == 'verde' and velas[3] == 'vermelha' and velas[4] == 'verde':
+                dir = 'put'
+                ui.label_28.setText('Mobtrader 1 formado! PUT')
+            elif velas[0] == 'verde' and velas[1] == 'verde' and velas[2] == 'verde' and velas[3] == 'vermelha' and velas[4] == 'vermelha':
+                dir = 'call'
+                ui.label_28.setText('Mobtrader 1 formado! CALL')
+            elif velas[0] == 'vermelha' and velas[1] == 'vermelha' and velas[2] == 'vermelha' and velas[3] == 'verde' and velas[4] == 'verde':
+                dir = 'put'
+                ui.label_28.setText('Mobtrader 1 formado! PUT')
+            elif velas[0] == 'vermelha' and velas[1] == 'vermelha' and velas[2] == 'vermelha' and velas[3] == 'verde' and velas[4] == 'vermelha':
+                dir = 'call'
+                ui.label_28.setText('Mobtrader 1 formado! CALL')
+            else:
+                ui.label_28.setText('NÃO LOCALIZEI PADRÃO MOBTRADER 1 NESTE QUADRANTE')
+                entradas_fixas(paridade,padrao,opcao)
+                break
+                
+            
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if inverter:
+                if dir == 'put':
+                    dir = 'call'
+                else:
+                    dir = 'put'
+            else:
+                pass
+                                                        
+            if velas[0] or velas[1] or velas[2] or velas[3] or velas[4] == 'doji':
+                ui.label_28.setText('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if str(ui.comboBox_8.currentText()) == 'FIXO':  
+                    entradas_fixas(paridade, padrao,opcao)
+                    break
+                elif str(ui.comboBox_8.currentText()) == 'AUTOMATICO':  
+                    buscar()
+                    break
+
+            
+            if dir:
+                direcao = str(dir)
+                ativo = str(par)
+                momento = datetime.now()
+                hm = datetime.now()
+                h = hm.strftime('%H:%M')
+                hora_atual = hm.strftime('%H:%M:%S')
+                depois = datetime.now() + timedelta(minutes= 0)
+                partiu = depois.strftime('%H:%M:%S')
+                ui.label_28.setText('ENTRADA AS '+str(partiu))
+                
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par,partiu)
+      
+def MOBTI():
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global sorosmao
+    global ENT
+    global gales
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if str(ui.comboBox_8.currentText()) == 'FIXO':
+        paridade = str(ui.comboBox_9.currentText())
+        padrao = str(ui.comboBox_10.currentText())
+
+    if ui.checkBox.isChecked():
+        quantidade = float(quantidade)*float(banca())/100
+    if ui.checkBox_2.isChecked():
+        stop_win = float(stop_win)*float(banca())/100
+    if ui.checkBox_3.isChecked():
+        stop_loss = float(stop_loss)*float(banca())/100
+
+
+    
+    NV = int(ui.comboBox_2.currentText())
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(ui.comboBox.currentText())
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+    velasM = ui.comboBox.currentText()
+    
+    ui.label_28.setText(f'AGUARDE... {padrao.upper()}')
+    while True:
+        app.processEvents()
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+                            
+        
+        ui.label_11.setText(datetime.now().strftime('%H:%M:%S'))
+        
+        hora = horario()
+        if entrar:
+            ui.label_28.setText('Iniciando operação Mobtrader 1 inverso')
+            dir = False
+            ui.label_28.setText('Verificando cores das velas..')
+            velas = iq.get_candles(par, 60, 5, time.time())
+            
+            velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+            velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+            velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+            velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2] + ' ' + velas[3]	+ ' ' + velas[4]	
+            #print(cores)
+            if velas[0] == 'verde' and velas[1] == 'vermelha' and velas[2] == 'verde' and velas[3] == 'verde' and velas[4] == 'verde':
+                dir = 'put'
+                ui.label_28.setText('Mobtrader inverso formado! PUT')
+            elif velas[0] == 'vermelha' and velas[1] == 'vermelha' and velas[2] == 'verde' and velas[3] == 'verde' and velas[4] == 'verde':
+                dir = 'call'
+                ui.label_28.setText('Mobtrader inverso formado! CALL')
+            elif velas[0] == 'verde' and velas[1] == 'verde' and velas[2] == 'vermelha' and velas[3] == 'vermelha' and velas[4] == 'vermelha':
+                dir = 'put'
+                ui.label_28.setText('Mobtrader inverso formado! PUT')
+            elif velas[0] == 'vermelha' and velas[1] == 'verde' and velas[2] == 'vermelha' and velas[3] == 'vermelha' and velas[4] == 'vermelha':
+                dir = 'call'
+                ui.label_28.setText('Mobtrader inverso formado! CALL')
+            else:
+                ui.label_28.setText('NÃO LOCALIZEI PADRÃO MOBTRADER INVERSO NESTE QUADRANTE')
+                entradas_fixas(paridade,padrao,opcao)
+                break
+
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if inverter:
+                if dir == 'put':
+                    dir = 'call'
+                else:
+                    dir = 'put'
+            else:
+                pass
+                                                        
+            if velas[0] or velas[1] or velas[2] or velas[3] or velas[4] == 'doji':
+                ui.label_28.setText('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if str(ui.comboBox_8.currentText()) == 'FIXO':  
+                    entradas_fixas(paridade, padrao,opcao)
+                    break
+                elif str(ui.comboBox_8.currentText()) == 'AUTOMATICO':  
+                    buscar()
+                    break
+
+            
+            if dir:
+                direcao = str(dir)
+                ativo = str(par)
+                momento = datetime.now()
+                hm = datetime.now()
+                h = hm.strftime('%H:%M')
+                hora_atual = hm.strftime('%H:%M:%S')
+                depois = datetime.now() + timedelta(minutes= 0)
+                partiu = depois.strftime('%H:%M:%S')
+                ui.label_28.setText('ENTRADA AS '+str(partiu))
+                
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par,partiu)
+    
+def MOBTS():
+    global LC
+    global stop_loss
+    global stop_win
+    global ganhos
+    global percas
+    global atual
+    global conta
+    global ban
+    global paridade
+    global padrao
+    global porcentagem
+    global WIN
+    global G1
+    global G2
+    global HIT
+    global win
+    global g1
+    global g2
+    global hit
+    global quantidade
+    global opcao
+    global STP
+    global martingale
+    global FL
+    global velasM
+    global gerenciada
+    global resu
+    global luc
+    global quant
+    global sorosmao
+    global ENT
+    global gales
+    global inverter
+    global pulos
+    global parfixo
+    global padraoTrabalho
+    global trabalho
+    global TEND
+
+    if str(ui.comboBox_8.currentText()) == 'FIXO':
+        paridade = str(ui.comboBox_9.currentText())
+        padrao = str(ui.comboBox_10.currentText())
+
+    if ui.checkBox.isChecked():
+        quantidade = float(quantidade)*float(banca())/100
+    if ui.checkBox_2.isChecked():
+        stop_win = float(stop_win)*float(banca())/100
+    if ui.checkBox_3.isChecked():
+        stop_loss = float(stop_loss)*float(banca())/100
+
+
+    
+    NV = int(ui.comboBox_2.currentText())
+    MT = float(FL)
+    CT = 0
+    
+    tempo2 = str(ui.comboBox.currentText())
+    if tempo2 == 'M1':
+        tempo = 1
+    elif tempo2 == 'M5':
+        tempo = 5
+    elif tempo2 == 'M15':
+        tempo = 15
+
+    par = paridade.upper()
+    velasM = ui.comboBox.currentText()
+    
+    ui.label_28.setText(f'AGUARDE... {padrao.upper()}')
+    while True:
+        app.processEvents()
+        if velasM == 'M1':
+            minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+            entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
+        elif velasM == 'M5':
+            minutos = float(((datetime.now()).strftime('%M.%S')))
+            entrar = True if (minutos >= 29.58 and minutos <= 30) or minutos >= 59.58 else False
+                            
+        
+        ui.label_11.setText(datetime.now().strftime('%H:%M:%S'))
+        
+        hora = horario()
+        if entrar:
+            ui.label_28.setText('Iniciando operação mobtrader Solitario')
+            dir = False
+            ui.label_28.setText('Verificando cores das velas..')
+            velas = iq.get_candles(par, 60, 5, time.time())
+            
+            velas[0] = 'verde' if velas[0]['open'] < velas[0]['close'] else 'vermelha' if velas[0]['open'] > velas[0]['close'] else 'doji'
+            velas[1] = 'verde' if velas[1]['open'] < velas[1]['close'] else 'vermelha' if velas[1]['open'] > velas[1]['close'] else 'doji'
+            velas[2] = 'verde' if velas[2]['open'] < velas[2]['close'] else 'vermelha' if velas[2]['open'] > velas[2]['close'] else 'doji'
+            velas[3] = 'verde' if velas[3]['open'] < velas[3]['close'] else 'vermelha' if velas[3]['open'] > velas[3]['close'] else 'doji'
+            velas[4] = 'verde' if velas[4]['open'] < velas[4]['close'] else 'vermelha' if velas[4]['open'] > velas[4]['close'] else 'doji'
+            
+            cores = velas[0] + ' ' + velas[1] + ' ' + velas[2] + ' ' + velas[3]	+ ' ' + velas[4]	
+            #print(cores)
+            if velas[0] == 'vermelha' and velas[1] == 'verde' and velas[2] == 'verde' and velas[3] == 'verde' and velas[4] == 'verde':
+                dir = 'call'
+                ui.label_28.setText('Mobtrader solitario formado! CALL')
+            elif velas[0] == 'verde' and velas[1] == 'vermelha' and velas[2] == 'verde' and velas[3] == 'verde' and velas[4] == 'verde':
+                dir = 'call'
+                ui.label_28.setText('Mobtrader solitario formado! CALL')
+            elif velas[0] == 'verde' and velas[1] == 'verde' and velas[2] == 'vermelha' and velas[3] == 'verde' and velas[4] == 'verde':
+                dir = 'call'
+                ui.label_28.setText('Mobtrader solitario formado! CALL')
+            elif velas[0] == 'verde' and velas[1] == 'verde' and velas[2] == 'verde' and velas[3] == 'vermelha' and velas[4] == 'verde':
+                dir = 'call'
+                ui.label_28.setText('Mobtrader solitario formado! CALL')
+            elif velas[0] == 'verde' and velas[1] == 'verde' and velas[2] == 'verde' and velas[3] == 'verde' and velas[4] == 'vermelha':
+                dir = 'call'
+                ui.label_28.setText('Mobtrader solitario formado! CALL')
+            if velas[0] == 'verde' and velas[1] == 'vermelha' and velas[2] == 'vermelha' and velas[3] == 'vermelha' and velas[4] == 'vermelha':
+                dir = 'put'
+                ui.label_28.setText('Mobtrader solitario formado! PUT')
+            elif velas[0] == 'vermelha' and velas[1] == 'verde' and velas[2] == 'vermelha' and velas[3] == 'vermelha' and velas[4] == 'vermelha':
+                dir = 'put'
+                ui.label_28.setText('Mobtrader solitario formado! PUT')
+            elif velas[0] == 'vermelha' and velas[1] == 'vermelha' and velas[2] == 'verde' and velas[3] == 'vermelha' and velas[4] == 'vermelha':
+                dir = 'put'
+                ui.label_28.setText('Mobtrader solitario formado! PUT')
+            elif velas[0] == 'vermelha' and velas[1] == 'vermelha' and velas[2] == 'vermelha' and velas[3] == 'verde' and velas[4] == 'vermelha':
+                dir = 'put'
+                ui.label_28.setText('Mobtrader solitario formado! PUT')
+            elif velas[0] == 'vermelha' and velas[1] == 'vermelha' and velas[2] == 'vermelha' and velas[3] == 'vermelha' and velas[4] == 'verde':
+                dir = 'put'
+                ui.label_28.setText('Mobtrader solitario formado! PUT')
+            else:
+                ui.label_28.setText('NÃO LOCALIZEI PADRÃO MOBTRADER SOLITARIO NESTE QUADRANTE')
+                entradas_fixas(paridade,padrao,opcao)
+                break
+                
+            
+            #print(cores)
+            verd = int(cores.count('verde'))
+            verme = int(cores.count('vermelha'))
+            
+            #print(f'{Verde}verdes{Reset} {verd} | {Vermelho}vermelha {Reset}{verme} ')
+            if inverter:
+                if dir == 'put':
+                    dir = 'call'
+                else:
+                    dir = 'put'
+            else:
+                pass
+                                                        
+            if velas[0] or velas[1] or velas[2] or velas[3] or velas[4] == 'doji':
+                ui.label_28.setText('ENTRADA RECUSADA POR CAUSA DO DOJI')
+                dir = False
+                STP = True   
+                if str(ui.comboBox_8.currentText()) == 'FIXO':  
+                    entradas_fixas(paridade, padrao,opcao)
+                    break
+                elif str(ui.comboBox_8.currentText()) == 'AUTOMATICO':  
+                    buscar()
+                    break
+
+            
+            if dir:
+                direcao = str(dir)
+                ativo = str(par)
+                momento = datetime.now()
+                hm = datetime.now()
+                h = hm.strftime('%H:%M')
+                hora_atual = hm.strftime('%H:%M:%S')
+                depois = datetime.now() + timedelta(minutes= 0)
+                partiu = depois.strftime('%H:%M:%S')
+                ui.label_28.setText('ENTRADA AS '+str(partiu))
+                
+                confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par,partiu)
+
+#=========================================
+def pegar_id(user_chave):
+    global Pconta
+    global Pentrada
+    global Pstoploss
+    global Pstopwin
+    global Pgales
+    global Pvelas
+    global PMHI
+    global PMHI2
+    global PMHI3
+    global PMHI2_Maioria
+    global PMHI3_Maioria
+    global PMilhao_Minoria
+    global PMilhao_Maioria
+    global PPadrao_Impar
+    global PTorres_Gemeas
+    global PTres_Mosqueteiros
+    global PMelhor_de_3
+    global PPadrao_23
+    global PMHI_Maioria
+    global Ppaym
+    global Pacerm
+    global Perros
+    global Pinverter
+    global Ppular
+    global sua_chave
+    global user_id
+
+    data = {'chave': f'{user_chave}', 'acao': 'logar'}
+    url = "http://mobtrader.myartsonline.com/jogadores.php"    
+    resp = requests.post(url, data)
+    retorno = resp.text
+    if retorno == '':
+        print('CHAVE INCORRETA!')
+        sys.exit()
+    else:
+        lista = resp.text.split(',')
+        lista2 = []
+        for i in lista:
+            lista2.append(i)
+        sua_chave = int(lista2[28])
+        Pconta = lista2[3]
+        Pentrada = lista2[4]
+        Pstoploss = lista2[5]
+        Pstopwin = lista2[6]
+        Pgales = int(lista2[9])
+        Pvelas = lista2[11]
+        PMHI = int(lista2[12])
+        PMHI2 = int(lista2[13])
+        PMHI3 = int(lista2[14])
+        PMHI2_Maioria = int(lista2[15])
+        PMHI3_Maioria = int(lista2[16])
+        PMilhao_Minoria = int(lista2[17])
+        PMilhao_Maioria = int(lista2[18])
+        PPadrao_Impar = int(lista2[19])
+        PTorres_Gemeas = int(lista2[20])
+        PTres_Mosqueteiros = int(lista2[21])
+        PMelhor_de_3 = int(lista2[23])
+        PPadrao_23 = int(lista2[24])
+        PMHI_Maioria = int(lista2[25])
+        Ppaym = int(lista2[32])
+        Pacerm = int(lista2[33])
+        Perros = int(lista2[34])
+        Pinverter = int(lista2[35])
+        Ppular = int(lista2[36])
+        user_id = int(lista2[28])
+        
+        return sua_chave
+
+def verificacao():
+    global ver
+    
+    bot = 'mobtradertermux'
+    data = {'desenvolvedor': f'{bot}','acao': 'verificar'}
+    url = "http://mobtrader.myartsonline.com/bot/jogadores.php"    
+    resp = requests.post(url, data)
+    retorno = resp.text
+    lista = resp.text.split(',')
+    lista2 = []
+    for i in lista:
+        lista2.append(i)
+    versao = lista2[1]
+    link = lista2[4]
+    msg = lista2[5]
+
+    if ver < int(versao):
+        return f'{Vermelho}{msg}{Reset}\n{Amarelo}Sua versão ={Reset} {Vermelho}{ver}{Reset}\n{Amarelo}Versão atual ={Reset} {Verde}{versao}{Reset}\n{Amarelo}Entre em:{Reset} {Verde}{link}{Reset}\n\n{Azul}(MOBTRADER BOT !!!){Reset}'
+    else:
+        return ''
+
+def confirma():
+    global nome
+    global senha
+    global email
+    global conta
+    global entrada
+    global stoploss
+    global stopwin
+    global autonomo
+    global horas
+    global gales
+    global fator
+    global velasM
+    global MHI
+    global MHI2
+    global MHI3
+    global MHI2_Maioria
+    global MHI3_Maioria
+    global Milhao_Minoria
+    global Milhao_Maioria
+    global Padrao_Impar
+    global Torres_Gemeas
+    global Tres_Mosqueteiros
+    global C3
+    global Melhor_de_3
+    global Padrao_23
+    global MHI_Maioria
+    global ativacao
+    global soroGales
+    global login
+    global password
+    global tp
+    global quantidade
+    global STOPLOSS
+    global STOPWIN
+    global stop_win
+    global stop_loss
+    global sistema
+    global espera
+    global FL
+    global gerenciada
+    global GL
+    global AT
+    global account_type
+    global tp
+    global martingale
+    global chaveN
+    global ENT
+    global G
+    global paym
+    global acerm
+    global erros
+    global inverter
+    global pulos
+    global Pconta
+    global Pentrada
+    global Pstoploss
+    global Pstopwin
+    global Pgales
+    global Pvelas
+    global PMHI
+    global PMHI2
+    global PMHI3
+    global PMHI2_Maioria
+    global PMHI3_Maioria
+    global PMilhao_Minoria
+    global PMilhao_Maioria
+    global PPadrao_Impar
+    global PTorres_Gemeas
+    global PTres_Mosqueteiros
+    global PMelhor_de_3
+    global PPadrao_23
+    global PMHI_Maioria
+    global Ppaym
+    global Pacerm
+    global Perros
+    global Pinverter
+    global Ppular
+    global user_id
+    global catalogo
+    global cliente
+    global cat
+    global chaveN
+    global trabalho
+    global padrao_fixo
+    global TEND
+    global op_definida
+
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print('OK, BEM VINDO AO MOBTRADER, DIGITE SUA CHAVE\n')
+    chaveN = str(input(': '))
+    data = {'chave': f'{chaveN}', 'acao': 'logar'}
+    url = "http://mobtrader.myartsonline.com/jogadores.php"    
+    resp = requests.post(url, data)
+    listaRetorno = []
+    if resp.text != '0':
+        lista = resp.text.split(',')
+                        
+        for i in lista:
+            listaRetorno.append(i)
+        nome = listaRetorno[0].replace(' ','')
+        senha = listaRetorno[1].replace(' ','')
+        email = listaRetorno[2].replace(' ','')
+        conta = listaRetorno[3].replace(' ','')
+        entrada = listaRetorno[4].replace(' ','')
+        stoploss = listaRetorno[5].replace(' ','')
+        stopwin = listaRetorno[6].replace(' ','')
+        autonomo = listaRetorno[7].replace(' ','')
+        horas = listaRetorno[8].replace(' ','')
+        gales = listaRetorno[9].replace(' ','')
+        fator = listaRetorno[10].replace(' ','')
+        velasM = listaRetorno[11].replace(' ','')
+        if listaRetorno[12].replace(' ','') == '0':
+            MHI = False
+        else:
+            MHI = True
+        if listaRetorno[13].replace(' ','') == '0':
+            MHI2 = False
+        else:
+            MHI2 = True
+        if listaRetorno[14].replace(' ','') == '0':
+            MHI3 = False
+        else:
+            MHI3 = True
+        if listaRetorno[15].replace(' ','') == '0':
+            MHI2_Maioria = False
+        else:
+            MHI2_Maioria = True
+        if listaRetorno[16].replace(' ','') == '0':
+            MHI3_Maioria = False
+        else:
+            MHI3_Maioria = True
+        if listaRetorno[17].replace(' ','') == '0':
+            Milhao_Minoria = False
+        else:
+            Milhao_Minoria = True
+        if listaRetorno[18].replace(' ','') == '0':
+            Milhao_Maioria = False
+        else:
+            Milhao_Maioria = True
+        if listaRetorno[19].replace(' ','') == '0':
+            Padrao_Impar = False
+        else:
+            Padrao_Impar = True
+        if listaRetorno[20].replace(' ','') == '0':
+            Torres_Gemeas = False
+        else:
+            Torres_Gemeas = True
+        if listaRetorno[21].replace(' ','') == '0':
+            Tres_Mosqueteiros = False
+        else:
+            Tres_Mosqueteiros = True
+        if listaRetorno[22].replace(' ','') == '0':
+            C3 = False
+        else:
+            C3 = True            
+        if listaRetorno[23].replace(' ','') == '0':
+            Melhor_de_3 = False
+        else:
+            Melhor_de_3 = True           
+        if listaRetorno[24].replace(' ','') == '0':
+            Padrao_23 = False
+        else:
+            Padrao_23 = True
+        if listaRetorno[25].replace(' ','') == '0':
+            MHI_Maioria = False
+        else:
+            MHI_Maioria = True     
+        ativacao = listaRetorno[26].replace(' ','')
+        soroGales = listaRetorno[27].replace(' ','')
+
+        paym = int(listaRetorno[32])
+        acerm = int(listaRetorno[33])
+        erros = int(listaRetorno[34])
+        inver = int(listaRetorno[35])
+        pulos = int(listaRetorno[36])
+        catalogo = int(listaRetorno[37])
+        cliente = str(listaRetorno[38])
+        if cliente == 'TESTE':
+            conta = 'PRACTICE'
+
+        if catalogo == 0:
+            cat = 'Catalogação automatica'
+        elif catalogo == 1:
+            cat = 'Catalogação de mão fixa'
+        elif catalogo == 2:
+            cat = 'Catalogação de 1 gale'
+        elif catalogo == 3:
+            cat = 'Catalogação de 2 gale'
+        
+
+
+        if inver == 0:
+            inverter = False
+        else:
+            inverter = True
+                        
+
+        login = str(email)
+        password = str(senha)
+        account_type = str(conta)
+        tp = account_type
+        quantidade = float(entrada)
+        ENT = float(entrada)
+        STOPLOSS = float(stoploss)
+        STOPWIN = float(stopwin)
+        stop_win = float(STOPWIN)
+        stop_loss = float(STOPLOSS)
+        sistema = str(autonomo)
+        if soroGales == 'sim':
+            gerenciada = True
+        else:
+            gerenciada = False
+        
+        if sistema == 'sim':
+            AT = True
+            
+            martingale = int(gales)
+            #martingale += 1
+            FL = float(fator)
+            espera = int(horas)
+        
+        elif sistema == 'nao':
+            AT = False
+            
+            martingale = int(gales)
+            martingale += 1
+            FL = float(fator)
+        if int(gales) == 0:
+            G = 'Mão fixa'
+        if int(gales) == 1:
+            G = '1 Gale'
+        if int(gales) == 2:
+            G = '2 Gale'       
+        
+        
+        return True
+        
+        
+    else:
+        return resp.text
+
+
+
+
+check = str(verificacao())
+if check != '':
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(check)
+    time.sleep(5)
+    pass
+else:
+    pass
+chave = str(confirma())
+if chave == '0':
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print('CHAVE NÃO ENCONTRADA!')
+    sys.exit()
+    
+else:
+    os.system('cls' if os.name == 'nt' else 'clear')
+    if ativacao != 'ok':
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print('VERIFIQUE O APLICATIVO DE CONFIGURAÇÕES!')
+        sys.exit()
+    
+
+os.system('cls' if os.name == 'nt' else 'clear')
+print('QUAL O TIPO DE OPERAÇÃO?\n\n1 = FIXA\n2 = AUTOMATICA\n3 = LISTA\n ')
+modo_catalogar = int(input('Digite um numero: '))
+os.system('cls' if os.name == 'nt' else 'clear')
+print('POSSO OPERAR CONTRA A TENDENCIA?\n\n1 = SIM\n2 = NÃO\n')
+tem = int(input('digite um numero: '))
+os.system('cls' if os.name == 'nt' else 'clear')
+print('QUAL O TIPO DE OPÇÃO?\n\n1 = DIGITAL\n2 = BINARIA\n3 = MELHOR\n ')
+operarN = int(input('digite um numero: '))
+if operarN == 1:
+    operacao = 'digital'
+elif operarN == 2:
+    operacao = 'binaria'
+else:
+    operacao = 'melhor'
+
+if tem == 1:
+    TEND = True
+else:
+    TEND = False
+if modo_catalogar == 1:
+    trabalho = 'fixo'
+    os.system('cls' if os.name == 'nt' else 'clear')
+    disponiveis = disponiveis(str(velasM),int(gales))
+    to = -1
+    list_dispo = []
+    print('SELECIONE UM NUMERO:')
+    for i in disponiveis:
+        to += 1
+        list_dispo.append(i)
+
+        print(f'{to} = {i}')
+    npar = int(input(': '))
+    if npar == 0:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'OK, ENTÃO ESCOLHA O MODO AUTOMATICO PARA USAR TODOS!')
+        sys.exit()
+    parfixo = list_dispo[npar]
+    paridade = parfixo
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(f'AGORA ESCOLHA O NUMERO DO PADRÃO DESEJADO: ')
+    print('1 = MHI')
+    print('2 = MHI2')
+    print('3 = MHI3')
+    print('4 = MHI_Maioria')
+    print('5 = MHI2_Maioria')
+    print('6 = MHI3_Maioria')
+    print('7 = Milhao_Minoria')
+    print('8 = Milhao_Maioria')
+    print('9 = Padrao_Impar')
+    print('10 = Torres_Gemeas')
+    print('11 = Tres_Mosqueteiros')
+    print('12 = Melhor_de_3')
+    print('13 = Padrao_23')
+    print('14 = Five_Flip')
+    print('15 = Tres_vizinhos')
+    print('16 = MHI_de_Meio_Ciclo')
+    padraoEscolha = int(input(': '))
+    if padraoEscolha == 1:
+        padraoTrabalho = 'MHI'
+    elif padraoEscolha == 2:
+        padraoTrabalho = 'MHI2'
+    elif padraoEscolha == 3:
+        padraoTrabalho = 'MHI3'
+    elif padraoEscolha == 4:
+        padraoTrabalho = 'MHI_Maioria'
+    elif padraoEscolha == 5:
+        padraoTrabalho = 'MHI2_Maioria'
+    elif padraoEscolha == 6:
+        padraoTrabalho = 'MHI3_Maioria'
+    elif padraoEscolha == 7:
+        padraoTrabalho = 'Milhao_Minoria'
+    elif padraoEscolha == 8:
+        padraoTrabalho = 'Milhao_Maioria'
+    elif padraoEscolha == 9:
+        padraoTrabalho = 'Padrao_Impar'
+    elif padraoEscolha == 10:
+        padraoTrabalho = 'Torres_Gemeas'
+    elif padraoEscolha == 11:
+        padraoTrabalho = 'Tres_Mosqueteiros'
+    elif padraoEscolha == 12:
+        padraoTrabalho = 'Melhor_de_3'
+    elif padraoEscolha == 13:
+        padraoTrabalho = 'Padrao_23'
+    elif padraoEscolha == 14:
+        padraoTrabalho = 'Five_Flip'
+    elif padraoEscolha == 15:
+        padraoTrabalho = 'Tres_vizinhos'
+    elif padraoEscolha == 16:
+        padraoTrabalho = 'MHI_de_Meio_Ciclo'
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(f'OK, VAMOS TRABALHAR FIXO NA MOEDA {Amarelo}{parfixo}{Reset} COM PADRÃO {Verde}{padraoTrabalho}{Reset}')
+elif modo_catalogar == 2:
+    trabalho = 'automatico'
+elif modo_catalogar == 3:
+    trabalho = 'lista'
+elif modo_catalogar == 4:
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print('QUAL O MODO:\n1 = AUTOMATICO\n2 = FIXO\n\n')
+    modoscalper = int(input('Digite um numero: '))
+    if modoscalper == 1:
+        trabalho = 'scalper1'
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'PRECISO DE ALGUMAAS INFORMAÇÕES:\n')
+        S_porcentagem_lucro = int(input('QUAL A PORCENTAGEM DE GANHOS: '))
+        S_porcentagem_lucro2 = int(input('QUAL A PORCENTAGEM DE PERCAS: '))
+        S_valor_minimo = round(float(quantidade) * (float(S_porcentagem_lucro / 100)), 2)
+        S_valor_minimo2 = round(float(quantidade) * (float(S_porcentagem_lucro2 / 100)), 2)
+        print(f'OK, BUSCAREI {S_valor_minimo} DE LUCRO OU {S_valor_minimo2} DE PERCAS\n')
+        time.sleep(4)
+    elif modoscalper == 2:
+        trabalho = 'scalper2'
+        os.system('cls' if os.name == 'nt' else 'clear')
+        disponiveis = disponiveis(str(velasM),int(gales))
+        to = -1
+        list_dispo = []
+        print('SELECIONE UM NUMERO:')
+        for i in disponiveis:
+            to += 1
+            list_dispo.append(i)
+
+            print(f'{to} = {i}')
+        npar = int(input(': '))
+        if npar == 0:
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print(f'OK, ENTÃO ESCOLHA O MODO AUTOMATICO PARA USAR TODOS!')
+            sys.exit()
+        parfixo = list_dispo[npar]
+        paridade = parfixo
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'AGORA ESCOLHA O NUMERO DO PADRÃO DESEJADO: ')
+        print('1 = MHI')
+        print('2 = MHI2')
+        print('3 = MHI3')
+        print('4 = MHI_Maioria')
+        print('5 = MHI2_Maioria')
+        print('6 = MHI3_Maioria')
+        print('7 = Milhao_Minoria')
+        print('8 = Milhao_Maioria')
+        print('9 = Padrao_Impar')
+        print('10 = Torres_Gemeas')
+        print('11 = Tres_Mosqueteiros')
+        print('12 = Melhor_de_3')
+        print('13 = Padrao_23')
+        print('14 = Five_Flip')
+        print('15 = Tres_vizinhos')
+        print('16 = MHI_de_Meio_Ciclo')
+        padraoEscolha = int(input(': '))
+        if padraoEscolha == 1:
+            padraoTrabalho = 'MHI'
+        elif padraoEscolha == 2:
+            padraoTrabalho = 'MHI2'
+        elif padraoEscolha == 3:
+            padraoTrabalho = 'MHI3'
+        elif padraoEscolha == 4:
+            padraoTrabalho = 'MHI_Maioria'
+        elif padraoEscolha == 5:
+            padraoTrabalho = 'MHI2_Maioria'
+        elif padraoEscolha == 6:
+            padraoTrabalho = 'MHI3_Maioria'
+        elif padraoEscolha == 7:
+            padraoTrabalho = 'Milhao_Minoria'
+        elif padraoEscolha == 8:
+            padraoTrabalho = 'Milhao_Maioria'
+        elif padraoEscolha == 9:
+            padraoTrabalho = 'Padrao_Impar'
+        elif padraoEscolha == 10:
+            padraoTrabalho = 'Torres_Gemeas'
+        elif padraoEscolha == 11:
+            padraoTrabalho = 'Tres_Mosqueteiros'
+        elif padraoEscolha == 12:
+            padraoTrabalho = 'Melhor_de_3'
+        elif padraoEscolha == 13:
+            padraoTrabalho = 'Padrao_23'
+        elif padraoEscolha == 14:
+            padraoTrabalho = 'Five_Flip'
+        elif padraoEscolha == 15:
+            padraoTrabalho = 'Tres_vizinhos'
+        elif padraoEscolha == 16:
+            padraoTrabalho = 'MHI_de_Meio_Ciclo'
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'OK, VAMOS TRABALHAR FAZENDO SCALPER NA MOEDA {Amarelo}{parfixo}{Reset} COM PADRÃO {Verde}{padraoTrabalho}{Reset}')
+        time.sleep(3)
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'PRECISO DE ALGUMAAS INFORMAÇÕES:\n')
+        S_porcentagem_lucro = int(input('QUAL A PORCENTAGEM DE GANHOS: '))
+        S_porcentagem_lucro2 = int(input('QUAL A PORCENTAGEM DE PERCAS: '))
+        S_valor_minimo = round(float(quantidade) * (float(S_porcentagem_lucro / 100)), 2)
+        S_valor_minimo2 = round(float(quantidade) * (float(S_porcentagem_lucro2 / 100)), 2)
+        print(f'OK, BUSCAREI {S_valor_minimo} DE LUCRO OU {S_valor_minimo2} DE PERCAS\n')
+        time.sleep(4)
+
+os.system('cls' if os.name == 'nt' else 'clear')
+print(f'{Verde}SUAS CONFIGURAÇÕES SÃO:{Reset}')
+print(f'{Amarelo}CONTA:{Reset} {Azul}{conta}{Reset}')
+print(f'{Amarelo}VALOR DE ENTRADA:{Reset} {Azul}{entrada}{Reset}')
+print(f'{Amarelo}MARTINGALES:{Reset} {Azul}{gales}{Reset}')
+print(f'{Amarelo}CATALOGAÇÃO:{Reset} {Azul}{cat}{Reset}')
+print(f'{Amarelo}PULAR{Reset} {Azul}{pulos}{Reset} {Amarelo}VELAS{Reset} ')
+print(f'{Amarelo}INVERSÃO:{Reset} {Azul}{inverter}{Reset}')
+print(f'{Amarelo}STOPLOSS:{Reset} {Azul}{STOPLOSS}{Reset}')
+print(f'{Amarelo}STOPWIN:{Reset} {Azul}{STOPWIN}{Reset}')
+print(f'{Amarelo}VELAS DE:{Reset} {Azul}{velasM}{Reset}')
+time.sleep(5)
+os.system('cls' if os.name == 'nt' else 'clear')
+print(f'AGORA VOU CONECTAR COM A IQ, AGUARDE...')
+
+
+# Aqui começa a configuração da API, não alterar
+#:===============================================================:#
+
+iq = IQ_Option(login, password)
+iqo_api = iq
+if not verificar_se_fez_a_conexao(iq, account_type):
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print('OPA!, VERIFIQUE O APLICATICO, EMAIL OU SENHA ESTA INCORRETA.')
+    sys.exit(0)
+conta = account_type
+currency_account = iq.get_currency()
+account_balance = iq.get_balance()
+DATE_TIME_FORMAT = '%Y-%m-%d %H:%M'
+os.system('cls' if os.name == 'nt' else 'clear')
+x = perfil()
+nome = str(x['name'])
+saldo = (f"{'Conta de treino saldo' if account_type == 'PRACTICE'  else 'Saldo'}: {Amarelo}{format_currency_value(currency_account, account_balance)}{Reset}")
+print(saldo)
+BANCAINICIAL = float(round(banca(), 2))
+time.sleep(3)
+
+if trabalho == 'fixo':
+    entradas_fixas(parfixo, padraoTrabalho)
+elif trabalho == 'automatico':
+    buscar()
+elif trabalho == 'lista':
+    buscar()
+
+
+
