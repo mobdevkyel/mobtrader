@@ -1,4 +1,3 @@
-from typing import MutableSet
 from iqoptionapi.stable_api import IQ_Option
 from iqoptionapi.constants import ACTIVES
 import iqoptionapi.country_id as Pais
