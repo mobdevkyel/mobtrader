@@ -201,7 +201,7 @@ def inicio():
     Mostra = ''
     if email == 'ezequieleoss1986@gmail.com':
         Mostra = conta2
-    eles:
+    else:
         Mostra = conta
       
     
