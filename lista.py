@@ -1154,6 +1154,12 @@ if Nmult == 1:
     MULT = True
 elif Nmult == 2:
     MULT = False
+print('DESEJA HABILITAR TENDÊNCIA?\n\n1 = SIM\n2 = NÃO\n ')
+Ntend = int(input('Digite um numero: '))
+if Ntend == 1:
+    TEND = True
+elif Ntend == 2:
+    TEND = False
 os.system('cls' if os.name == 'nt' else 'clear')
 print('QUAL O TIPO DE OPERAÇÃO?\n\n1 = LISTA CADASTRADA\n2 = LISTA LOCAL\n ')
 modo_catalogar = int(input('Digite um numero: '))
