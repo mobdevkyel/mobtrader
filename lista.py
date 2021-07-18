@@ -195,8 +195,15 @@ def inicio():
     global ganhos
     global percas
     global atual
+    global email
         
-        
+    conta2 = 'REAL'
+    Mostra = ''
+    if email == 'ezequieleoss1986@gmail.com':
+        Mostra = conta2
+    eles:
+        Mostra = conta
+      
     
     os.system('cls' if os.name == 'nt' else 'clear')
     print(f'{Amarelo}______  ___       ______  ________                _________{Reset}')              
@@ -205,7 +212,7 @@ def inicio():
     print(f'{Amarelo}_  /  / /  / /_/ /_  /_/ /_  /    _  /    / /_/ / / /_/ /  /  __/_  /{Reset}')    
     print(f'{Amarelo}/_/  /_/   \____/ /_.___/ /_/     /_/     \__,_/  \__,_/   \___/ /_/ {Reset}\n')  
     print(f'{Azul}MOBTRADER LISTAS 2.3.6(VIP){Reset} - Contato: +55 (11) 9 7615-9233\n')    
-    print(f'Ganhos: {Verde}{round(ganhos, 2)}{Reset} || Percas: {Vermelho}{round(percas, 2)}{Reset} || Locros: {Amarelo}{round(atual, 2)}{Reset}\nConta: {Azul}{conta}{Reset}')
+    print(f'Ganhos: {Verde}{round(ganhos, 2)}{Reset} || Percas: {Vermelho}{round(percas, 2)}{Reset} || Locros: {Amarelo}{round(atual, 2)}{Reset}\nConta: {Azul}{Mostra}{Reset}')
     print(f'VITORIAS: {Verde}{VIT}{Reset} // DERROTAS: {Vermelho}{DER}{Reset}\nSUA BANCA INICIAL: {Azul}{round(BANCAINICIAL, 2)}{Reset}\nSUA BANCA ATUAL: {Amarelo}{round(banca(), 2)}{Reset}')
     print(f'GALES: {Verde}{gales}{Reset} || SOROS MÃOS: {Verde}{soros}{Reset}\nENTRADA: {Verde}{round(quantidade, 2)}{Reset}')
     print(f'*********************************************************************************************')
