@@ -98,78 +98,80 @@ def horario():
     return hora
 
 def telegram(timeframe,hora2,paridade,direcao,gales,tipo,re,qual):
-        global nomeN
-        global velasM
-        global DER
-        global VIT
+    global nomeN
+    global velasM
+    global DER
+    global VIT
+    global soros
+    
+    info = ''                
+    if qual == 1:
+        info = "-1001405795828"
+    elif qual == 2:
+        info = "-598251971"
+
+    chat_id = str(info)
+
+    if tipo == "inicial":
+        msg = f'''
+        ⚠️⚠️ Atenção Traders!!! ⚠️⚠️
+
+        Possivel entrada de {timeframe} as {hora2}
+
+        🐔 Até {gales} Gales.
+        💪🏻 Soros nivel {soros}
         
-        info = ''                
-        if qual == 1:
-            info = "-1001405795828"
-        elif qual == 2:
-            info = "-598251971"
+        Trader {nomeN} operando bot celular.
 
-        chat_id = str(info)
+        🏴‍☠️ Paridade: {paridade}
+        🔰 Direção: {direcao}
+        📊 Resultado: {re}
 
-        if tipo == "inicial":
-            msg = f'''
+        😱 Vitorias: {VIT}
+        😱 Derrotas: {DER}
+        ------------------------------------
+        '''
+    elif tipo == "final":
+        msg = f'''
             ⚠️⚠️ Atenção Traders!!! ⚠️⚠️
 
-            Possivel entrada de {timeframe} as {hora2}
+        Resultado do trader {nomeN}.
 
-            🐔 Até {gales} Gales.
-            
-            Trader {nomeN} operando bot celular.
+        
+        🏴‍☠️ Paridade: {paridade}
+        🔰 Direção: {direcao}
+        📊 Resultado: {re}
 
-            🏴‍☠️ Paridade: {paridade}
-            🔰 Direção: {direcao}
-            📊 Resultado: {re}
+        😱 Vitorias: {VIT}
+        😱 Derrotas: {DER}
+        ------------------------------------
+        '''
+    elif tipo == "contra":
+        msg = f'''
+        ⚠️⚠️ Atenção Traders!!! ⚠️⚠️
 
-            😱 Vitorias: {VIT}
-            😱 Derrotas: {DER}
-            ------------------------------------
-            '''
-        elif tipo == "final":
-            msg = f'''
-                ⚠️⚠️ Atenção Traders!!! ⚠️⚠️
+        Entrada recusada {hora2} - {timeframe}
 
-            Resultado do trader {nomeN}.
+        🐔 Até {gales} Gales.
+        
+        Presente do Trader: {nomeN}
 
-            
-            🏴‍☠️ Paridade: {paridade}
-            🔰 Direção: {direcao}
-            📊 Resultado: {re}
+        🏴‍☠️ Paridade: {paridade}
+        🔰 Direção: {direcao}
+        📊 Resultado: {re}
 
-            😱 Vitorias: {VIT}
-            😱 Derrotas: {DER}
-            ------------------------------------
-            '''
-        elif tipo == "contra":
-            msg = f'''
-            ⚠️⚠️ Atenção Traders!!! ⚠️⚠️
+        😱 Vitorias: {VIT}
+        😱 Derrotas: {DER}
+        ------------------------------------
+        '''
 
-            Entrada recusada {hora2} - {timeframe}
-
-            🐔 Até {gales} Gales.
-            
-            Presente do Trader: {nomeN}
-
-            🏴‍☠️ Paridade: {paridade}
-            🔰 Direção: {direcao}
-            📊 Resultado: {re}
-
-            😱 Vitorias: {VIT}
-            😱 Derrotas: {DER}
-            ------------------------------------
-            '''
-
-        def send_message(chat_id, msg):
-            requests.post('https://api.telegram.org/bot1124089653:AAFvtVnYoulqRCU3g80z0qM6hn__QIQKYeE/sendMessage', {'chat_id': chat_id, 'text': str(msg)})
+    def send_message(chat_id, msg):
+        requests.post('https://api.telegram.org/bot1124089653:AAFvtVnYoulqRCU3g80z0qM6hn__QIQKYeE/sendMessage', {'chat_id': chat_id, 'text': str(msg)})
 
 
 
-        #msg = "testando bot"
-        send_message(chat_id, msg)
+    #msg = "testando bot"
+    send_message(chat_id, msg)
 
 
 # ============================================================== #
@@ -195,15 +197,13 @@ def inicio():
     global ganhos
     global percas
     global atual
-    global email
         
     conta2 = 'REAL'
     Mostra = ''
     if email == 'ezequieleoss1986@gmail.com':
         Mostra = conta2
     else:
-        Mostra = conta
-      
+        Mostra = conta   
     
     os.system('cls' if os.name == 'nt' else 'clear')
     print(f'{Amarelo}______  ___       ______  ________                _________{Reset}')              
@@ -217,7 +217,7 @@ def inicio():
     print(f'GALES: {Verde}{gales}{Reset} || SOROS MÃOS: {Verde}{soros}{Reset}\nENTRADA: {Verde}{round(quantidade, 2)}{Reset}')
     print(f'*********************************************************************************************')
 
-def Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
+def Verifica_status(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
     global BANCAINICIAL
     global ganhos
     global percas
@@ -226,13 +226,13 @@ def Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tempo
     global VIT
     global DER
     global conta
-    global conta
     global email
     global sr
     global ONLINE
     global MULT
     global entrada
     global soros
+    global quantidade
       
     if isinstance(id, int):
         result = ''                
@@ -252,10 +252,10 @@ def Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tempo
                     atual += round(lucro, 2)
                     ban = round(banca(), 2)
                     
-                    NOVA_ENTRADA = float(quantidade)*MT
-                    entrada = 'R$ {:,.2f}'.format(NOVA_ENTRADA)
+                    NOVA_ENTRADA = float(quant)*MT
+                    entrada2 = 'R$ {:,.2f}'.format(NOVA_ENTRADA)
                     
-                    print(f'{Amarelo}MARTINGALE: {Reset}'+str(CT)+ ' ' + ativo.upper() + ' ' +str(hora)+', ATIVO: '+str(ativo)+' - '+str(entrada))
+                    print(f'{Amarelo}MARTINGALE: {Reset}'+str(CT)+ ' ' + ativo.upper() + ' ' +str(hora)+', ATIVO: '+str(ativo)+' - '+str(entrada2))
                         
                     status,id = iq.buy(NOVA_ENTRADA, ativo, direcao, tempo)
                     #Verifica_status(id,ativo,NOVA_ENTRADA,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
@@ -282,17 +282,20 @@ def Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tempo
                     
                     if CT == 1:
                         result = 'Win no Gale 1 ✅🐔'    
-                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"G1",direcao.upper(),padrao.upper(),ativo,data,hora)
+                        alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"G1",direcao.upper(),padrao.upper(),ativo,data,hora)
                     elif CT == 2:
                         result = 'Win no Gale 2 ✅🐔🐔' 
-                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"G2",direcao.upper(),padrao.upper(),ativo,data,hora)
+                        alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"G2",direcao.upper(),padrao.upper(),ativo,data,hora)
                     else:
                         result = 'Win de primeira ✅' 
-                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
+                        alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
 
                     
                     #inicio(ganhos, percas, atual)
-                    
+                    if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
+
                     print(f'{Verde}{ativo} | {direcao.upper()} | VITORIA{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     quantidade = soro(lucro)
@@ -316,7 +319,7 @@ def Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tempo
                     sr = 0
                     
                                         
-                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"HIT",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"HIT",direcao.upper(),padrao.upper(),ativo,data,hora)
                     
                     
                     #inicio(ganhos, percas, atual)
@@ -324,8 +327,10 @@ def Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tempo
                     print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     result = 'Derrota ❌' 
-                    #telegram("final",result,hora)
-                    quantidade = soro(lucro)
+                    if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
+                    quantidade = float(entrada)
                     time.sleep(5)
                     inicio()
                     if ONLINE:
@@ -338,15 +343,16 @@ def Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tempo
                     print(f'{Azul}{ativo} | {direcao.upper()} | DOJI{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     result = 'Empate(DOJI) 🔁' 
-                    
-                    #telegram(tempo2,hora,paridade,direcao,gales,'final',result)
+                    if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
                     time.sleep(5)
                     if ONLINE:
                         lista_sinais_online()
                     else:
                         lista_sinais()
                                                            
-def Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
+def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
     global BANCAINICIAL
     global ganhos
     global percas
@@ -355,13 +361,13 @@ def Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tem
     global VIT
     global DER
     global conta
-    global conta
     global email
     global sr
     global ONLINE
     global MULT
     global entrada
     global soros
+    global quantidade
 
     #print(NV)
     if isinstance(id, int):
@@ -383,9 +389,9 @@ def Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tem
                     ban = round(banca(), 2)
                     #inicio(ganhos, percas, atual)
 
-                    NOVA_ENTRADA = float(quantidade)*MT
-                    entrada = 'R$ {:,.2f}'.format(NOVA_ENTRADA)
-                    print(f'{Amarelo}MARTINGALE: {Reset}'+str(CT)+ ' ' + ativo.upper() + ' ' +str(hora)+', ATIVO: '+str(ativo)+' - '+str(entrada))
+                    NOVA_ENTRADA = float(quant)*MT
+                    entrada2 = 'R$ {:,.2f}'.format(NOVA_ENTRADA)
+                    print(f'{Amarelo}MARTINGALE: {Reset}'+str(CT)+ ' ' + ativo.upper() + ' ' +str(hora)+', ATIVO: '+str(ativo)+' - '+str(entrada2))
                         
                     status,id = iq.buy_digital_spot_v2(ativo, NOVA_ENTRADA, direcao, tempo)
                     Lm = Thread(target=Verifica_status_D, args=(id,ativo,NOVA_ENTRADA,direcao,tempo,opcao,hora,NV,MT,CT,tempo2,))
@@ -413,17 +419,20 @@ def Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tem
                     
                     if CT == 1:
                         result = 'Win no Gale 1 ✅🐔'    
-                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"G1",direcao.upper(),padrao.upper(),ativo,data,hora)
+                        alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"G1",direcao.upper(),padrao.upper(),ativo,data,hora)
                     elif CT == 2:
                         result = 'Win no Gale 2 ✅🐔🐔' 
-                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"G2",direcao.upper(),padrao.upper(),ativo,data,hora)
+                        alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"G2",direcao.upper(),padrao.upper(),ativo,data,hora)
                     else:
                         result = 'Win de primeira ✅' 
-                        alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
+                        alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
 
                     
                     #inicio(ganhos, percas, atual)
-                    
+                    if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
+
                     print(f'{Verde}{ativo} | {direcao.upper()} | VITORIA{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     quantidade = soro(lucro)
@@ -447,7 +456,7 @@ def Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tem
                     sr = 0
                     
                                         
-                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"HIT",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"HIT",direcao.upper(),padrao.upper(),ativo,data,hora)
                     
                     
                     #inicio(ganhos, percas, atual)
@@ -455,8 +464,10 @@ def Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tem
                     print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     result = 'Derrota ❌' 
-                    #telegram("final",result,hora)
-                    quantidade = soro(lucro)
+                    if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
+                    quantidade = float(entrada)
                     time.sleep(5)
                     inicio()
                     if ONLINE:
@@ -471,11 +482,13 @@ def Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora2,NV,MT,CT,tem
                     print(f'{Azul}{ativo} | {direcao.upper()} | DOJI{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     result = 'Derrota(DOJI) ❌' 
-                    quantidade = soro(lucro)
-                    #telegram("final",result,hora)
+                    if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
+                        telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
+                                       
+                    alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"DOJI",direcao.upper(),padrao.upper(),ativo,data,hora)
+                    quantidade = float(entrada)
                     time.sleep(5)
-                    
-                    alerta(round(quantidade, 2),round(lucro, 2),round(lucros, 2),"DOJI",direcao.upper(),padrao.upper(),ativo,data,hora)
                     inicio()
                     if ONLINE:
                         lista_sinais_online()
@@ -504,7 +517,7 @@ def confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par):
     try:
         dir = direcao
                 
-        if TEND:
+        if TEND == False:
             dica = tendencia(par,tempo)
                         
             if opcao == 'binaria':
@@ -513,12 +526,7 @@ def confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par):
                 print('Entrada a ser realizada, valor '+str(entrada)+' - '+str(ativo))
                 status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
                 if id:
-                    if MULT:
-                        Lm = Thread(target=Verifica_status, args=(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2,))
-                        Lm.daemon = True
-                        Lm.start()
-                    else:
-                        Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
                 else:
                     print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
                     if ONLINE:
@@ -532,12 +540,7 @@ def confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par):
                 print('Entrada a ser realizada, valor '+str(entrada)+' - '+str(ativo))
                 status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
                 if id:
-                    if MULT:
-                        Lm = Thread(target=Verifica_status_D, args=(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2,))
-                        Lm.daemon = True
-                        Lm.start()
-                    else:
-                        Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                    Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
                     
                 else:
                     print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
@@ -557,12 +560,7 @@ def confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par):
                     
                     status,id = iq.buy(float(quantidade), str(ativo), str(direcao), int(tempo))
                     if id:
-                        if MULT:
-                            Lm = Thread(target=Verifica_status, args=(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2,))
-                            Lm.daemon = True
-                            Lm.start()
-                        else:
-                            Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                        Verifica_status(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
                     else:
                         print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
                         if ONLINE:
@@ -577,12 +575,7 @@ def confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par):
                     
                     status,id = iq.buy_digital_spot_v2(str(ativo),float(quantidade),str(direcao), int(tempo))
                     if id:
-                        if MULT:
-                            Lm = Thread(target=Verifica_status_D, args=(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2,))
-                            Lm.daemon = True
-                            Lm.start()
-                        else:
-                            Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
+                        Verifica_status_D(id,ativo,quantidade,direcao,tempo,opcao,hora,NV,MT,CT,tempo2)
                     else:
                         print('Entrada recusada pela iq: '+str(ativo)+', '+str(tempo2))
                         if ONLINE:
@@ -595,6 +588,9 @@ def confirmadas(direcao,ativo,tempo,tempo2,hora,NV,MT,CT,par):
             else:
                 print('ENTRADA CONTRA TENDENCIA, IREI RECUSAR ESTA...')
                 result = "Contra Tendencia"
+                if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
+                        telegram(tempo2,hora,ativo,direcao,gales,'contra',result,1)
+                        telegram(tempo2,hora,ativo,direcao,gales,'contra',result,2)
                 if ONLINE:
                     lista_sinais_online()
                 else:
@@ -746,34 +742,31 @@ def soro(lucro):
     global soros
     global entrada
     
-    if lucro <= 0:
+    if soros == 0:
         quantidade = float(entrada)
         quantidade = float(quantidade)
         sr = 0
-
+        inicio()
         return quantidade
-    else:   
-        if soros == 0:
+    else:
+        ciclos = True
+        srt = soros
+        srt = int(srt)
+        
+        if sr > srt:
             quantidade = float(entrada)
             quantidade = float(quantidade)
             sr = 0
 
             return quantidade
-        else:
-            ciclos = True
-            srt = soros
-            srt = int(srt)
-            print(f'SOROS NIVEL {sr} NA PROXIMA ENTRADA')
-            if sr > srt:
-                quantidade = float(entrada)
-                quantidade = float(quantidade)
-                sr = 0
 
-                return quantidade
-            else:
-                quantidade = (float(quantidade) + float(lucro))
-                
-                return quantidade
+         
+
+        else:
+            print(f'SOROS NIVEL {sr} NA PROXIMA ENTRADA')  
+            quantidade = (float(quantidade) + float(lucro))
+            inicio()
+            return quantidade
 
 def listaDeEntradas():
     arquivo = open('sinais.txt', encoding='UTF-8')
@@ -825,6 +818,7 @@ def lista_sinais_online():
     global FL
     global DER
     global VIT
+    global velasM
     
 
     
@@ -884,11 +878,16 @@ def lista_sinais_online():
                     tempo = 30
             elif timeframe == 'H1':
                     tempo = 60
+            velasM = timeframe
             ativo = moeda
             re = 'Aguardando 🕐'
             #print(hora_atual, hora2)
             #print(hora2, hora_atual_pay)
-            
+            if hora_atual_sinal == hora2:
+                telegram(timeframe,hora2,ativo,direcao,gales,'inicial',re,1)
+            if hora_atual_sinal2 == hora2:
+                telegram(timeframe,hora2,ativo,direcao,gales,'inicial',re,2)
+
             if hora_atual_pay == hora2:
                 
                 print(f'VERIFICANDO - {hora},{moeda.upper()},{direcao.upper()},{timeframe}')
@@ -941,6 +940,7 @@ def lista_sinais():
     global FL
     global DER
     global VIT
+    global velasM
         
     
     lista = listaDeEntradas()
@@ -981,10 +981,10 @@ def lista_sinais():
             hora_pay = datetime.now() + timedelta(seconds=25)
             hora_atual_pay = hora_pay.strftime('%H:%M:%S')
 
-            hora_sinal_vip = datetime.now() + timedelta(minutes=3)
+            hora_sinal_vip = datetime.now() + timedelta(minutes=30)
             hora_atual_sinal = hora_sinal_vip.strftime('%H:%M:%S')
 
-            hora_sinal_free = datetime.now() + timedelta(minutes=1)
+            hora_sinal_free = datetime.now() + timedelta(minutes=30)
             hora_atual_sinal2 = hora_sinal_free.strftime('%H:%M:%S')
             
             now = datetime.now() + timedelta(seconds=2)
@@ -1000,12 +1000,15 @@ def lista_sinais():
                     tempo = 30
             elif timeframe == 'H1':
                     tempo = 60
+            velasM = timeframe
             ativo = moeda
             re = 'Aguardando 🕐'
             #print(hora_atual, hora2)
             #print(hora2, hora_atual_pay)
-            
             if hora_atual_pay == hora2:
+                if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
+                    telegram(timeframe,hora2,ativo,direcao,gales,'inicial',re,1)
+                    telegram(timeframe,hora2,ativo,direcao,gales,'inicial',re,2)
                 
                 print(f'VERIFICANDO - {hora},{moeda.upper()},{direcao.upper()},{timeframe}')
                                 
@@ -1034,9 +1037,15 @@ def lista_sinais():
                 ativo = str(moeda)
                 tempo2 = str(moeda)
                 par = str(moeda)
-                                    
-                confirmadas(direcao,ativo,tempo,timeframe,hora2,NV,MT,CT,par)
-                break
+
+
+                if MULT:
+                    Lm = Thread(target=confirmadas, args=(direcao,ativo,tempo,timeframe,hora2,NV,MT,CT,par,))
+                    Lm.daemon = True
+                    Lm.start()  
+                else:                  
+                    confirmadas(direcao,ativo,tempo,timeframe,hora2,NV,MT,CT,par)
+                
                 #L = Thread(target=confirmadas, args=(direcao,ativo,tempo,timeframe,hora2,NV,MT,CT,par,))
                 #L.daemon = True
                 #L.start()
@@ -1160,6 +1169,7 @@ if Nmult == 1:
     MULT = True
 elif Nmult == 2:
     MULT = False
+os.system('cls' if os.name == 'nt' else 'clear')
 print('DESEJA HABILITAR TENDÊNCIA?\n\n1 = SIM\n2 = NÃO\n ')
 Ntend = int(input('Digite um numero: '))
 if Ntend == 1:
@@ -1171,6 +1181,15 @@ print('QUAL O TIPO DE OPERAÇÃO?\n\n1 = LISTA CADASTRADA\n2 = LISTA LOCAL\n ')
 modo_catalogar = int(input('Digite um numero: '))
 if modo_catalogar == 1:
     ONLINE = True
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print('\nQUAL VALOR DE ENTRADA?: ', end='')
+    quantidade = int(input())
+    print('\nQUAL INICIAL?: ', end='')
+    entrada = int(input())
+    print('\nQUANTOS MARTINGALES?: ', end='')
+    gales = int(input())
+    print('\nQUANTOS SOROS?: ', end='')
+    soros = int(input())
     inicio()
     lista_sinais_online()
 elif modo_catalogar == 2:
@@ -1180,6 +1199,8 @@ elif modo_catalogar == 2:
     modo = int(input('Digite um numero: '))
     if modo == 1:
         testadorlista()
+        print('\nESCOLHA:\n\n1 = INICIAR\n2 = TESTAR\n3 = SAIR\n')
+        modo2 = int(input('Digite um numero: '))
     elif modo == 2:
         catalogaragora(iq) 
         print('\nESCOLHA:\n\n1 = INICIAR\n2 = TESTAR\n3 = SAIR\n')
@@ -1188,7 +1209,8 @@ elif modo_catalogar == 2:
             os.system('cls' if os.name == 'nt' else 'clear')
             print('\nQUAL VALOR DE ENTRADA?: ', end='')
             quantidade = int(input())
-            entrada = quantidade
+            print('\nQUAL VALOR INICIAL?: ', end='')
+            entrada = int(input())
             print('\nQUANTOS MARTINGALES?: ', end='')
             gales = int(input())
             print('\nQUANTOS SOROS?: ', end='')
@@ -1205,7 +1227,8 @@ elif modo_catalogar == 2:
         os.system('cls' if os.name == 'nt' else 'clear')
         print('\nQUAL VALOR DE ENTRADA?: ', end='')
         quantidade = int(input())
-        entrada = quantidade
+        print('\nQUAL VALOR INICIAL?: ', end='')
+        entrada = int(input())
         print('\nQUANTOS MARTINGALES?: ', end='')
         gales = int(input())
         print('\nQUANTOS SOROS?: ', end='')
