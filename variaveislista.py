@@ -56,3 +56,4 @@ ciclos = False
 MULT = False
 minha_lista = []
 velasM = ''
+G = False

@@ -276,9 +276,7 @@ def Verifica_status(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     VIT += 1
                     lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
                     sr += 1
-                    if sr > soros:
-                        sr = 0
-                                        
+                                                           
                     
                     if CT == 1:
                         result = 'Win no Gale 1 ✅🐔'    
@@ -291,14 +289,25 @@ def Verifica_status(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
 
                     
-                    #inicio(ganhos, percas, atual)
+                    if soros > 0:
+                        if sr > soros:
+                            quantidade = float(entrada)
+                            sr = 0
+                            print(f'SOROS NIVEL {soros} CONCLUIDO, VAMOS REINICIAR AS ENTRADAS.')  
+                        else:
+                            quantidade = (float(quant) + float(lucro))
+                            print(f'SOROS NIVEL {sr} NA PROXIMA ENTRADA') 
+                    else:
+                        sr = 0
+
+                    '''
                     if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
-
+                    '''
                     print(f'{Verde}{ativo} | {direcao.upper()} | VITORIA{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
-                    quantidade = soro(lucro)
+                    
                     time.sleep(5)
                     inicio()                        
                     if ONLINE:
@@ -327,9 +336,11 @@ def Verifica_status(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     result = 'Derrota ❌' 
+                    '''
                     if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
+                    '''
                     quantidade = float(entrada)
                     time.sleep(5)
                     inicio()
@@ -343,9 +354,11 @@ def Verifica_status(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     print(f'{Azul}{ativo} | {direcao.upper()} | DOJI{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     result = 'Empate(DOJI) 🔁' 
+                    '''
                     if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
+                    '''
                     time.sleep(5)
                     if ONLINE:
                         lista_sinais_online()
@@ -368,6 +381,7 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
     global entrada
     global soros
     global quantidade
+    global G
 
     #print(NV)
     if isinstance(id, int):
@@ -381,7 +395,7 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
             status,lucro = iq.check_win_digital_v2(id)
             if status:
                 
-                if lucro < 0 and NV > 0:
+                if lucro < 0 and NV > 0 and G == True:
                     NV -= 1
                     CT += 1
                     percas += round(lucro, 2)
@@ -413,9 +427,7 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     VIT += 1
                     lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
                     sr += 1
-                    if sr > soros:
-                        sr = 0
-                                        
+                                                                             
                     
                     if CT == 1:
                         result = 'Win no Gale 1 ✅🐔'    
@@ -428,14 +440,24 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
 
                     
-                    #inicio(ganhos, percas, atual)
+                    if soros > 0:
+                        if sr > soros:
+                            quantidade = float(entrada)
+                            sr = 0
+                            print(f'SOROS NIVEL {soros} CONCLUIDO, VAMOS REINICIAR AS ENTRADAS.')  
+                        else:
+                            quantidade = (float(quant) + float(lucro))
+                            print(f'SOROS NIVEL {sr} NA PROXIMA ENTRADA') 
+                    else:
+                        sr = 0
+
+                    '''
                     if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
-
+                    '''
                     print(f'{Verde}{ativo} | {direcao.upper()} | VITORIA{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
-                    quantidade = soro(lucro)
                     time.sleep(5)
                     inicio()                        
                     if ONLINE:
@@ -464,9 +486,12 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     print(f'{Vermelho}{ativo} | {direcao.upper()} | DERROTA{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     result = 'Derrota ❌' 
+
+                    '''
                     if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
+                    '''
                     quantidade = float(entrada)
                     time.sleep(5)
                     inicio()
@@ -482,10 +507,11 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     print(f'{Azul}{ativo} | {direcao.upper()} | DOJI{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     result = 'Derrota(DOJI) ❌' 
+                    '''
                     if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
                         telegram(tempo2,hora2,ativo,direcao,gales,'final',result,2)
-                                       
+                    '''                   
                     alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"DOJI",direcao.upper(),padrao.upper(),ativo,data,hora)
                     quantidade = float(entrada)
                     time.sleep(5)
@@ -1006,9 +1032,11 @@ def lista_sinais():
             #print(hora_atual, hora2)
             #print(hora2, hora_atual_pay)
             if hora_atual_pay == hora2:
+                '''
                 if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
                     telegram(timeframe,hora2,ativo,direcao,gales,'inicial',re,1)
                     telegram(timeframe,hora2,ativo,direcao,gales,'inicial',re,2)
+                '''
                 
                 print(f'VERIFICANDO - {hora},{moeda.upper()},{direcao.upper()},{timeframe}')
                                 
