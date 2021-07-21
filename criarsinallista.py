@@ -8,6 +8,8 @@ import os
 init(autoreset=True)
 
 def catalogaragora(iq):
+    global ISI
+
     os.system('cls' if os.name == 'nt' else 'clear')
     try:
         arquivo = 'sinais.txt' 
@@ -68,7 +70,8 @@ def catalogaragora(iq):
         letra = 'M30'
     elif timeframe == 60:
         letra = 'H1'
-
+    
+    
     print('\nQuantos dias deseja analisar?: ', end='')
     dias = int(input())
 
@@ -145,7 +148,11 @@ def catalogaragora(iq):
                             msg += ' | MG ' + str(i+1) + ' - ' + str(catalogacao[par][horario]['mg'+str(i+1)]['%']) + '% - ' + Back.GREEN + Fore.BLACK + str(catalogacao[par][horario]['mg'+str(i+1)]['verde']) + Back.RED + Fore.BLACK + str(catalogacao[par][horario]['mg'+str(i+1)]['vermelha']) + Back.RESET + Fore.RESET + str(catalogacao[par][horario]['mg'+str(i+1)]['doji'])
                         else:
                             msg += ' | MG ' + str(i+1) + ' - N/A - N/A' 
-                            
+                if ISI:
+                    if par == 'call':
+                        par = put
+                    else:
+                        par = 'call'           
                 print(msg)
                 	
                 open('sinais.txt', 'a').write(str((datetime.now()).strftime('%d-%m-%Y')) + ' ' +horario + ',' + par + ',' + catalogacao[par][horario]['dir'].strip() + ',' + str(letra) + '\n')
