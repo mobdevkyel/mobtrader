@@ -1303,6 +1303,7 @@ elif modo_catalogar == 2:
 elif modo_catalogar == 000:
     ONLINE = False
     Tele = True
+    ISI = True
     os.system('cls' if os.name == 'nt' else 'clear')
     print('ESCOLHA:\n\n1 = TESTAR ULTIMA LISTA CATALOGADA\n2 = CATALOGAR NOVA LISTA\n3 = INICIAR ULTIMA LISTA CATALOGADA\n ')
     modo = int(input('Digite um numero: '))
