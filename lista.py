@@ -396,7 +396,7 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
             status,lucro = iq.check_win_digital_v2(id)
             if status:
                 
-                if lucro < 0 and NV > 0 and G == True:
+                if lucro < 0 and NV > 0:
                     NV -= 1
                     CT += 1
                     percas += round(lucro, 2)
