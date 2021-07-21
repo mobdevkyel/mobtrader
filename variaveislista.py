@@ -57,3 +57,4 @@ MULT = False
 minha_lista = []
 velasM = ''
 G = False
+tele = False
