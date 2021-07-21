@@ -2,6 +2,7 @@ from iqoptionapi.stable_api import IQ_Option
 from datetime import datetime, timedelta
 from colorama import init, Fore, Back
 from time import time
+from variaveislista import *
 import sys
 import os
 
