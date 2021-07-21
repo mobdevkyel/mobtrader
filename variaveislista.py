@@ -58,3 +58,4 @@ minha_lista = []
 velasM = ''
 G = False
 tele = False
+ISI = False
