@@ -397,8 +397,11 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
             if status:
                 
                 if lucro < 0 and NV > 0:
+                    
                     NV -= 1
                     CT += 1
+                    if CT == 1:
+                        quant = entrada
                     percas += round(lucro, 2)
                     atual += round(lucro, 2)
                     ban = round(banca(), 2)
