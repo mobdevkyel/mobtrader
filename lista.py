@@ -437,7 +437,7 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     ban = round(banca(), 2)
                     VIT += 1
                     lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
-                    sr += 1
+                    
                                                                              
                     
                     if CT == 1:
