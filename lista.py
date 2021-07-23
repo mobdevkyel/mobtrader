@@ -276,30 +276,37 @@ def Verifica_status(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     ban = round(banca(), 2)
                     VIT += 1
                     lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
-                    sr += 1
+                    
                                                            
                     
                     if CT == 1:
+                        sr = 0
+                        quantidade = float(entrada)
                         result = 'Win no Gale 1 ✅🐔'    
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"G1",direcao.upper(),padrao.upper(),ativo,data,hora)
                     elif CT == 2:
+                        sr = 0
+                        quantidade = float(entrada)
                         result = 'Win no Gale 2 ✅🐔🐔' 
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"G2",direcao.upper(),padrao.upper(),ativo,data,hora)
                     else:
+                        sr += 1
+                        if soros > 0:
+                            if sr > soros:
+                                quantidade = float(entrada)
+                                sr = 0
+                                print(f'SOROS NIVEL {soros} CONCLUIDO, VAMOS REINICIAR AS ENTRADAS.')
+                            else:
+                                quantidade = (float(quant) + float(lucro))
+                                print(f'SOROS NIVEL {sr} NA PROXIMA ENTRADA') 
+                        else:
+                            sr = 0
+                            quantidade = float(entrada)
                         result = 'Win de primeira ✅' 
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
 
                     
-                    if soros > 0:
-                        if sr > soros:
-                            quantidade = float(entrada)
-                            sr = 0
-                            print(f'SOROS NIVEL {soros} CONCLUIDO, VAMOS REINICIAR AS ENTRADAS.')  
-                        else:
-                            quantidade = (float(quant) + float(lucro))
-                            print(f'SOROS NIVEL {sr} NA PROXIMA ENTRADA') 
-                    else:
-                        sr = 0
+                    
 
                     if tele:
                         if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
@@ -434,25 +441,35 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                                                                              
                     
                     if CT == 1:
+                        sr = 0
+                        quantidade = float(entrada)
                         result = 'Win no Gale 1 ✅🐔'    
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"G1",direcao.upper(),padrao.upper(),ativo,data,hora)
                     elif CT == 2:
+                        sr = 0
+                        quantidade = float(entrada)
                         result = 'Win no Gale 2 ✅🐔🐔' 
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"G2",direcao.upper(),padrao.upper(),ativo,data,hora)
                     else:
+                        sr += 1
+                        if soros > 0:
+                            if sr > soros:
+                                quantidade = float(entrada)
+                                sr = 0
+                                print(f'SOROS NIVEL {soros} CONCLUIDO, VAMOS REINICIAR AS ENTRADAS.')
+                            else:
+                                quantidade = (float(quant) + float(lucro))
+                                print(f'SOROS NIVEL {sr} NA PROXIMA ENTRADA') 
+                        else:
+                            sr = 0
+                            quantidade = float(entrada)
                         result = 'Win de primeira ✅' 
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
 
                     
                     
-                    if sr > soros:
-                        quantidade = float(entrada)
-                        sr = 0
-                        print(f'SOROS NIVEL {soros} CONCLUIDO, VAMOS REINICIAR AS ENTRADAS.')  
-                    else:
-                        quantidade = (float(quant) + float(lucro))
-                        print(f'SOROS NIVEL {sr} NA PROXIMA ENTRADA') 
                     
+
                        
 
                     if tele:
