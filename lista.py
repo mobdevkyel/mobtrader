@@ -444,16 +444,16 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
 
                     
-                    if soros > 0:
-                        if sr > soros:
-                            quantidade = float(entrada)
-                            sr = 0
-                            print(f'SOROS NIVEL {soros} CONCLUIDO, VAMOS REINICIAR AS ENTRADAS.')  
-                        else:
-                            quantidade = (float(quant) + float(lucro))
-                            print(f'SOROS NIVEL {sr} NA PROXIMA ENTRADA') 
-                    else:
+                    
+                    if sr > soros:
+                        quantidade = float(entrada)
                         sr = 0
+                        print(f'SOROS NIVEL {soros} CONCLUIDO, VAMOS REINICIAR AS ENTRADAS.')  
+                    else:
+                        quantidade = (float(quant) + float(lucro))
+                        print(f'SOROS NIVEL {sr} NA PROXIMA ENTRADA') 
+                    
+                       
 
                     if tele:
                         if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
