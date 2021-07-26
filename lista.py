@@ -404,6 +404,9 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
     global ativar_sorogale
     global Sorogale
     global sg
+    global mao
+    global VTS
+    global lucrosSG
 
     #print(NV)
     if isinstance(id, int):
@@ -482,7 +485,8 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                                 sr = 0
                                 quantidade = float(entrada)
                         if ativar_sorogale:
-                            
+                            VTS += 1
+                            lucrosSG + lucro
                             soroGale(resultado, lucro, quant)
                         result = 'Win de primeira ✅' 
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
@@ -531,6 +535,8 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                         quantidade = float(entrada)
                     resultado = 'loss'
                     if ativar_sorogale:
+                        VTS = 0
+                        lucrosSG + lucro
                         soroGale(resultado, lucro, quant)
                     time.sleep(5)
                     inicio()
@@ -556,6 +562,8 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                         quantidade = float(entrada)
                     resultado = 'loss'
                     if ativar_sorogale:
+                        VTS = 0
+                        lucrosSG + lucro
                         soroGale(resultado, lucro, quant)
                     time.sleep(5)
                     inicio()
