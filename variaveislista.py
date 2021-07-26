@@ -62,3 +62,10 @@ minha_lista = []
 velasM = ''
 G = False
 tele = False
+
+preju = 0
+                
+mao = 1
+BANCAINICIAL = 0
+VTS = 0
+lucrosSG = 0
