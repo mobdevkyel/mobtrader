@@ -937,14 +937,22 @@ def soroGale(resultado, lucro, entrada0):
                 quantidade = float(entrada)
                 print(f'Proxima entrada será de {quantidade}')
             else:
-                sg += 1
-                mao = 1
-                preju = (float(BANCAINICIAL) - float(banca()))
-                entrada0 = float(preju) / 2
-                VTS = 0
+                if int(sg) <= int(Sorogale):
+                    quantidade = float(entrada)
+                    print(f'Proxima entrada será de {quantidade}')
+                    preju = 0
+                    sg = 1
+                    mao = 1
+                    BANCAINICIAL = banca()
+                    VTS = 0
+                    lucrosSG = 0
+                else:
+                    preju = (float(BANCAINICIAL) - float(banca()))
+                    entrada0 = float(preju) / 2
+                    VTS = 0
             
-                quantidade = float(entrada0)
-                print(f'Proxima entrada será de {quantidade}')
+                    quantidade = float(entrada0)
+                    print(f'Proxima entrada será de {quantidade}')
 
 def listaDeEntradas():
     arquivo = open('sinais.txt', encoding='UTF-8')
