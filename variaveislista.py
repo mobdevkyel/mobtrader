@@ -62,7 +62,7 @@ minha_lista = []
 velasM = ''
 G = False
 tele = False
-
+ISI = False
 preju = 0
                 
 mao = 1
