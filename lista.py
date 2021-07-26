@@ -482,6 +482,7 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                                 sr = 0
                                 quantidade = float(entrada)
                         if ativar_sorogale:
+                            
                             soroGale(resultado, lucro, quant)
                         result = 'Win de primeira ✅' 
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
@@ -857,7 +858,7 @@ def soro(lucro):
             inicio()
             return quantidade
 
-def soroGale(resultado, lucro, entrada):
+def soroGale(resultado, lucro, entrada0):
     global BANCAINICIAL
     global gerencia
     global mao
@@ -871,66 +872,63 @@ def soroGale(resultado, lucro, entrada):
     global Sorogale
     global sg
     global atual
+    global entrada
     
 
             
     if Sorogale > 0:
-        entrada = float(ui.lineEdit_2.text())
+        
         quantidade = float(entrada)
         sg = 0
 
     else:
-        ciclos = True
-        Nv = int(ui.comboBox_16.currentText())
-        Banca_inicial = float(ui.label_14.text())
-        Banca_inicial = float(round(Banca_inicial, 2))
         
         if resultado == 'win':
             
             if int(VTS) >= 2:
-                ui.label_28.setText('BANCA RECUPERADA!')
-                entrada = float(ui.lineEdit_2.text())
+                print('BANCA RECUPERADA!')
+                
                 preju = 0
-                gerencia = 1
+                sg = 1
                 mao = 1
                 BANCAINICIAL = banca()
                 VTS = 0
                 lucrosSG = 0
 
-                quantidade = float(ENT)
-                print(quantidade)
+                quantidade = float(entrada)
+                print(f'Proxima entrada será de {quantidade}')
                 
             else:
                 mao += 1
-                entrada = float(entrada) + float(lucro)
+                quantidade = float(entrada0) + float(lucro)
                 preju = 0
 
-                quantidade = float(entrada)
-                print(quantidade)
+                #quantidade = float(entrada)
+                print(f'Proxima entrada será de {quantidade}')
                 
         else:
             
-            if int(gerencia) == int(Nv) and mao == 2:
-                ui.label_28.setText('REINICIANDO CICLOS DE SOROGALE')
-                entrada = float(ui.lineEdit_2.text())
+            if int(sg) == int(Sorogale) and mao == 2:
+                print('REINICIANDO CICLOS DE SOROGALE')
+                #entrada = float(ui.lineEdit_2.text())
                 preju = 0
-                gerencia = 1
+                sg = 1
                 mao = 1
                 BANCAINICIAL = banca()
                 VTS = 0
                 lucrosSG = 0
 
                 quantidade = float(entrada)
-                print(quantidade)
+                print(f'Proxima entrada será de {quantidade}')
             else:
-                gerencia += 1
+                sg += 1
                 mao = 1
-                preju = (float(Banca_inicial) - float(banca()))
-                entrada = float(preju) / 2
+                preju = (float(BANCAINICIAL) - float(banca()))
+                entrada0 = float(preju) / 2
                 VTS = 0
             
-                quantidade = float(entrada)
-                print(quantidade)
+                quantidade = float(entrada0)
+                print(f'Proxima entrada será de {quantidade}')
 
 def listaDeEntradas():
     arquivo = open('sinais.txt', encoding='UTF-8')
