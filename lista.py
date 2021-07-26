@@ -407,6 +407,7 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
     global mao
     global VTS
     global lucrosSG
+    global preju
 
     #print(NV)
     if isinstance(id, int):
@@ -454,7 +455,7 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     ban = round(banca(), 2)
                     VIT += 1
                     lucros = float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))
-                    
+                    preju = (float(BANCAINICIAL) - float(banca()))
                                                                              
                     
                     if CT == 1:
@@ -484,14 +485,15 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                             else:
                                 sr = 0
                                 quantidade = float(entrada)
-                        if ativar_sorogale:
-                            VTS += 1
-                            lucrosSG + lucro
-                            soroGale(resultado, lucro, quant)
+                        
                         result = 'Win de primeira ✅' 
                         alerta(round(quant, 2),round(lucro, 2),round(lucros, 2),"WIN",direcao.upper(),padrao.upper(),ativo,data,hora)
 
-                                   
+                    if ativar_sorogale:
+                         resultado = 'win'
+                         VTS += 1
+                         lucrosSG + lucro
+                         soroGale(resultado, lucro, quant)              
 
                     if tele:
                         if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
@@ -509,7 +511,7 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     
             
                 elif lucro < 0:
-                    
+                    preju = (float(BANCAINICIAL) - float(banca()))
                     #VTS = 0
                     percas += round(lucro, 2)
                     atual += round(lucro, 2)
@@ -552,7 +554,7 @@ def Verifica_status_D(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
                     print(f'{Azul}{ativo} | {direcao.upper()} | DOJI{Reset}')
                     print('Lucro:' + str(round(lucro, 2)))
                     result = 'Derrota(DOJI) ❌' 
-
+                    preju = (float(BANCAINICIAL) - float(banca()))
                     if tele:
                         if conta == 'REAL' or email == 'ezequieleoss1986@gmail.com':
                             telegram(tempo2,hora2,ativo,direcao,gales,'final',result,1)
@@ -881,10 +883,11 @@ def soroGale(resultado, lucro, entrada0):
     global sg
     global atual
     global entrada
+    global atual
     
 
             
-    if Sorogale > 0:
+    if Sorogale <= 0:
         
         quantidade = float(entrada)
         sg = 0
