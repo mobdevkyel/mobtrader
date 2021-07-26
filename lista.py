@@ -199,6 +199,8 @@ def inicio():
     global atual
     global preju
     global Sorogale
+    global mão
+    global sg
         
     conta2 = 'REAL'
     Mostra = ''
@@ -217,7 +219,7 @@ def inicio():
     print(f'Ganhos: {Verde}{round(ganhos, 2)}{Reset} || Percas: {Vermelho}{round(percas, 2)}{Reset} || Locros: {Amarelo}{round(atual, 2)}{Reset}\nConta: {Azul}{Mostra}{Reset}')
     print(f'VITORIAS: {Verde}{VIT}{Reset} // DERROTAS: {Vermelho}{DER}{Reset}\nSUA BANCA INICIAL: {Azul}{round(BANCAINICIAL, 2)}{Reset}\nSUA BANCA ATUAL: {Amarelo}{round(banca(), 2)}{Reset}')
     print(f'GALES: {Verde}{gales}{Reset} || SOROS MÃOS: {Verde}{soros}{Reset} || SOROGALE:{Verde}{Sorogale}{Reset}\nENTRADA: {Verde}{round(quantidade, 2)}{Reset}\nPREJU: {Azul}{preju}{Reset} ')
-    #print(f'GALES: {Verde}{gales}{Reset} || SOROS MÃOS: {Verde}{soros}{Reset}\nENTRADA: {Verde}{round(quantidade, 2)}{Reset}') 
+    print(f'SOROGALES: MAO = {Verde}{mao}{Reset} | NIVEL = {Verde}{sg}{Reset}\n') 
     print(f'*********************************************************************************************')
 
 def Verifica_status(id,ativo,quant,direcao,tempo,opcao,hora2,NV,MT,CT,tempo2):
