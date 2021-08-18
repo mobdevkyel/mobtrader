@@ -235,6 +235,6 @@ while True:
 		entrada(par, 'call', timeframe)
 		
 		
-	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando entrada de R$ {valor}, na {par}, pagando: {payout}%", end='\r')
+	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando de R$ {valor}, na {par}, pagando: {payout}%", end='\r')
 	
 	
