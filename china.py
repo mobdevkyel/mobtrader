@@ -242,11 +242,14 @@ while True:
 	ssma_50 = TA.SSMA(df, 50)
 	
 	if ssma_3.iloc[-1] <= ssma_50.iloc[-1] and ssma_3.iloc[-2] > ssma_50.iloc[-2] and color == 'red':
-		entrada(par, 'put', timeframe)
+		Tend = str(tendencia(par,60))
+                if Tend == 'put':
+                   entrada(par, 'put', timeframe)
 	
 	elif ssma_3.iloc[-1] >= ssma_50.iloc[-1] and ssma_3.iloc[-2] < ssma_50.iloc[-2] and color == 'green':
-		Tend = tendencia(par,tempo)
-                entrada(par, 'call', timeframe)
+		Tend = str(tendencia(par,60))
+                if Tend == 'call':
+                   entrada(par, 'call', timeflame)
 		
 		
 	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando {par}, pagando:{payout}%", end='\r')
