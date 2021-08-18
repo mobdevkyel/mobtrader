@@ -145,7 +145,7 @@ def entrada(par, dir, timeframe):
 			status, lucro = API.check_win_digital_v2(id)
 			
 		if lucro > 0:
-			nivelsoros += 1
+	                nivelsoros += 1
 			if nivelsoros > soros and soros > 0:
 				valor = entradaI
 				os.system('cls' if os.name == 'nt' else 'clear')
@@ -242,13 +242,9 @@ while True:
 	ssma_50 = TA.SSMA(df, 50)
 	
 	if ssma_3.iloc[-1] <= ssma_50.iloc[-1] and ssma_3.iloc[-2] > ssma_50.iloc[-2] and color == 'red':
-		Tend = str(tendencia(par,60))
-         if Tend == 'PUT':
              entrada(par, 'put', timeframe)
 	
 	elif ssma_3.iloc[-1] >= ssma_50.iloc[-1] and ssma_3.iloc[-2] < ssma_50.iloc[-2] and color == 'green':
-		Tend = str(tendencia(par,60))
-         if Tend == 'CALL':
              entrada(par, 'call', timeflame)
 		
 		
