@@ -248,9 +248,12 @@ while True:
 		   entrada(par, 'put', timeframe)
 	
 	elif ssma_3.iloc[-1] >= ssma_50.iloc[-1] and ssma_3.iloc[-2] < ssma_50.iloc[-2] and color == 'green':
-		entrada(par, 'call', timeframe)
+		tempo = (timeflame * 60)
+		TEND = tendencia(par,tempo)
+		if TEND == 'CALL':
+		   entrada(par, 'call', timeframe)
 		
 		
-	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando entrada de R$ {valor}, na {par}, pagando: {payout}%", end='\r')
+	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando {par}, pagando:{payout}%", end='\r')
 	
 	
