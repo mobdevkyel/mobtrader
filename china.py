@@ -12,6 +12,19 @@ login = ""
 cliente = ""
 nome = ""
 
+def tendencia(par,tempo):
+    #par = 'AUDCAD'
+    timeframe = tempo
+
+    velas = iq.get_candles(par, (int(timeframe) * 60), 25,  time.time())
+
+    ultimo = round(velas[0]['close'], 4)
+    primeiro = round(velas[-1]['close'], 4)
+
+    diferenca = abs( round( ( (ultimo - primeiro) / primeiro ) * 100, 3) )
+    tendencia = "CALL" if ultimo < primeiro and diferenca > 0.01 else "PUT" if ultimo > primeiro and diferenca > 0.01 else False
+    
+    return tendencia
 
 def confirma():
 	global cliente
@@ -235,6 +248,6 @@ while True:
 		entrada(par, 'call', timeframe)
 		
 		
-	print(f"[{ datetime.now().strftime('%H:%M:%S') }]::Aguarde {par}, pagando: {payout}%", end='\r')
+	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando {par}, pagando: {payout}%", end='\r')
 	
 	
