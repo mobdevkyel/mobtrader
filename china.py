@@ -11,12 +11,16 @@ password = ""
 login = ""
 cliente = ""
 nome = ""
+derrotas = 0
+
+
 
 def tendencia(par,tempo):
+	
     #par = 'AUDCAD'
     timeframe = tempo
 
-    velas = iq.get_candles(par, (int(timeframe) * 60), 25,  time.time())
+    velas = API.get_candles(par, (int(timeframe) * 60), 5,  time())
 
     ultimo = round(velas[0]['close'], 4)
     primeiro = round(velas[-1]['close'], 4)
@@ -106,7 +110,10 @@ else:
 	input('\n\n Aperte enter para sair')
 	exit()
 
-
+def banca():
+	global API
+	return API.get_balance()
+BANCAINICIAL = float(round(banca(), 2))
 
 def get_data(par, timeframe, periods = 200,):
 	global API
@@ -133,54 +140,88 @@ def entrada(par, dir, timeframe):
 	global soros
 	global nivelsoros
 	global entradaI
+	global payminima
+	global derrotas
+	global BANCAINICIAL
+	global sorogale
 
 	os.system('cls' if os.name == 'nt' else 'clear')
 	print(f'\n Abrindo operação {par} - {valor}')
-	status, id = API.buy_digital_spot_v2(par, valor, dir, timeframe)
-	
-	if status:
+	payout = API.get_digital_payout(par)
+	if payout < payminima:
+		print(f"Recuzando entrada, payout ta menos de {payminima}%")
+		pass
+	else:	
+		status, id = API.buy_digital_spot_v2(par, valor, dir, timeframe)
 		
-		status = False
-		while status == False:
-			status, lucro = API.check_win_digital_v2(id)
+		if status:
 			
-		if lucro > 0:
-			nivelsoros += 1
-			if nivelsoros > soros and soros > 0:
-				valor = entradaI
-				os.system('cls' if os.name == 'nt' else 'clear')
-				print('WIN ✅, LUCRO DE', round(lucro, 2))
-				print(f"Soros nivel {soros} concluido!")
-				print(f"Reiniciando entradas para R$: {valor}")
+			status = False
+			while status == False:
+				status, lucro = API.check_win_digital_v2(id)
+				
+			if lucro > 0:
+				nivelsoros += 1
+				if nivelsoros > soros and soros > 0:
+					valor = entradaI
+					derrotas = 0
+					os.system('cls' if os.name == 'nt' else 'clear')
+					print('WIN ✅, LUCRO DE', round(lucro, 2))
+					print(f"Payout de: {payout}%")
+					print(f"Soros nivel {soros} concluido!")
+					print(f"Reiniciando entradas para R$: {valor}")
 
-			elif nivelsoros >= soros and soros == 0:
-				valor = entradaI
-				nivelsoros = 0
-				os.system('cls' if os.name == 'nt' else 'clear')
-				print('WIN ✅, LUCRO DE', round(lucro, 2))
+
+				elif nivelsoros >= soros and soros == 0:
+					valor = entradaI
+					nivelsoros = 0
+					derrotas = 0
+					os.system('cls' if os.name == 'nt' else 'clear')
+					print('WIN ✅, LUCRO DE', round(lucro, 2))
+					print(f"Payout de: {payout}%")
+					
+
+				else:	
+					valor = round((valor + lucro), 2)
+					os.system('cls' if os.name == 'nt' else 'clear')
+					print('WIN, LUCRO DE', round(lucro, 2))
+					saldo = round((float(round(banca(), 2)) - float(round(BANCAINICIAL, 2)) / 2), 2)
+					print(f"Payout de: {payout}%")
+					print(f"soro nivel {nivelsoros} ativado!")
+					print(f"Proxima entrada será de R$: {valor}")
+					
 				
 
-			else:	
-				valor = round((valor + lucro), 2)
-				os.system('cls' if os.name == 'nt' else 'clear')
-				print('WIN, LUCRO DE', round(lucro, 2))
-				print(f"soro nivel {nivelsoros} ativado!")
-				print(f"Proxima entrada será de R$: {valor}")
+			else:
+				if sorogale:
+					os.system('cls' if os.name == 'nt' else 'clear')
+					print('LOSS ❌, PERCA DE', round(lucro, 2))
+					derrotas += 1
+					if derrotas > 5:
+						valor = entradaI
+						print(f"Payout de: {payout}%")
+						print(f"Reiniciando entradas para RS: {entradaI}")
+						nivelsoros = 0
+						derrotas = 0
+					else:
+						valor = abs((float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))) / 2)
+						print(f"Payout de: {payout}%")
+						print(f"Proxima entrada será RS: {entradaI}")
+				else:
+					os.system('cls' if os.name == 'nt' else 'clear')
+					print('LOSS ❌, PERCA DE', round(lucro, 2))
+					valor = abs((float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))) / 2)
+					print(f"Payout de: {payout}%")
+					print(f"Proxima entrada será RS: {entradaI}")
+
+					
 				
 			
-
+			
 		else:
-			os.system('cls' if os.name == 'nt' else 'clear')
-			print('LOSS ❌, PERCA DE', round(lucro, 2))
-			valor = entradaI
-			print(f"Reiniciando entradas para RS: {valor}")
-			nivelsoros = 0
+			print('Erro ao abrir operação\n', id)
 		
-		
-	else:
-		print('Erro ao abrir operação\n', id)
-	
-	print('\n')
+		print('\n')
 	
 par = ""
 timeframe = 0
@@ -190,6 +231,8 @@ soros = 0
 nivelsoros = 0
 payminima = 0
 payout = ""	
+sorogale = True
+
 
 def configurar():
 	global par
@@ -200,7 +243,10 @@ def configurar():
 	global nivelsoros
 	global payminima
 	global payout
+	global sorogale
 
+
+	
 	par = input("Digite a moeda: ")
 	par = par.upper()
 	timeframe = input("Digite o tempo da vela: ")
@@ -213,6 +259,13 @@ def configurar():
 	nivelsoros = 0
 	payminima = input("Digite a payout minima para entrar: ")
 	payminima = int(payminima)
+	Tsorogale = input("Deseja fazer sorogale?:\n1 = SIM\n2 = NÃO\n\nDigite o numero: ")
+	Tsorogale = int(Tsorogale)
+	if Tsorogale == 1:
+		sorogale = True
+	else:
+		sorogale = False
+
 	try:
 		payout = API.get_digital_payout(par)
 	except:
@@ -234,7 +287,7 @@ configurar()
 print('\n')
 os.system('cls' if os.name == 'nt' else 'clear')
 while True:
-	
+	saldo = round((float(round(banca(), 2)) - float(round(BANCAINICIAL, 2)) / 2), 2)
 	df = get_data(par, timeframe, 200,)
 	
 	taxa, color = MovAvarDev(df, 20)
@@ -242,18 +295,12 @@ while True:
 	ssma_50 = TA.SSMA(df, 50)
 	
 	if ssma_3.iloc[-1] <= ssma_50.iloc[-1] and ssma_3.iloc[-2] > ssma_50.iloc[-2] and color == 'red':
-		tempo = 1
-		TEND = tendencia(par,tempo)
-		if TEND == 'PUT':
-		   entrada(par, 'put', timeframe)
+		entrada(par, 'put', timeframe)
 	
 	elif ssma_3.iloc[-1] >= ssma_50.iloc[-1] and ssma_3.iloc[-2] < ssma_50.iloc[-2] and color == 'green':
-		tempo = 1
-		TEND = tendencia(par,tempo)
-		if TEND == 'CALL':
-		   entrada(par, 'call', timeframe)
+		entrada(par, 'call', timeframe)
 		
 		
-	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando {par}, pagando:{payout}%", end='\r')
+	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando {par}, Saldo: R$: {saldo}", end='\r')
 	
 	
