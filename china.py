@@ -12,19 +12,6 @@ login = ""
 cliente = ""
 nome = ""
 
-def tendencia(par,tempo):
-    #par = 'AUDCAD'
-    timeframe = tempo
-
-    velas = iq.get_candles(par, (int(timeframe) * 60), 25,  time.time())
-
-    ultimo = round(velas[0]['close'], 4)
-    primeiro = round(velas[-1]['close'], 4)
-
-    diferenca = abs( round( ( (ultimo - primeiro) / primeiro ) * 100, 3) )
-    tendencia = "CALL" if ultimo < primeiro and diferenca > 0.01 else "PUT" if ultimo > primeiro and diferenca > 0.01 else False
-    
-    return tendencia
 
 def confirma():
 	global cliente
@@ -145,7 +132,7 @@ def entrada(par, dir, timeframe):
 			status, lucro = API.check_win_digital_v2(id)
 			
 		if lucro > 0:
-	                nivelsoros += 1
+			nivelsoros += 1
 			if nivelsoros > soros and soros > 0:
 				valor = entradaI
 				os.system('cls' if os.name == 'nt' else 'clear')
@@ -242,11 +229,12 @@ while True:
 	ssma_50 = TA.SSMA(df, 50)
 	
 	if ssma_3.iloc[-1] <= ssma_50.iloc[-1] and ssma_3.iloc[-2] > ssma_50.iloc[-2] and color == 'red':
-             entrada(par, 'put', timeframe)
+		entrada(par, 'put', timeframe)
 	
 	elif ssma_3.iloc[-1] >= ssma_50.iloc[-1] and ssma_3.iloc[-2] < ssma_50.iloc[-2] and color == 'green':
-             entrada(par, 'call', timeflame)
+		entrada(par, 'call', timeframe)
 		
 		
-	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando {par}, pagando:{payout}%", end='\r')
+	print(f"[{ datetime.now().strftime('%H:%M:%S') }]::Aguarde {par}, pagando: {payout}%", end='\r')
+	
 	
