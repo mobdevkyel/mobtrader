@@ -242,13 +242,13 @@ while True:
 	ssma_50 = TA.SSMA(df, 50)
 	
 	if ssma_3.iloc[-1] <= ssma_50.iloc[-1] and ssma_3.iloc[-2] > ssma_50.iloc[-2] and color == 'red':
-		tempo = (timeflame * 60)
+		tempo = 60
 		TEND = tendencia(par,tempo)
 		if TEND == 'PUT':
 		   entrada(par, 'put', timeframe)
 	
 	elif ssma_3.iloc[-1] >= ssma_50.iloc[-1] and ssma_3.iloc[-2] < ssma_50.iloc[-2] and color == 'green':
-		tempo = (timeflame * 60)
+		tempo = 60
 		TEND = tendencia(par,tempo)
 		if TEND == 'CALL':
 		   entrada(par, 'call', timeframe)
