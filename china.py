@@ -211,6 +211,8 @@ def entrada(par, dir, timeframe):
 						BANCAINICIAL = float(round(banca(), 2))
 					else:
 						valor = abs(round(banca() - BANCAINICIAL, 2) / 2)
+						if valor < 2:
+							valor = entradaI
 						print(f"Payout de: {payout}%")
 						print(f"Proxima entrada será RS: {valor}")
 				else:
