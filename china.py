@@ -12,6 +12,7 @@ login = ""
 cliente = ""
 nome = ""
 derrotas = 0
+TEND = False
 
 
 
@@ -113,7 +114,7 @@ else:
 def banca():
 	global API
 	return API.get_balance()
-BANCAINICIAL = float(round(banca(), 2))
+
 
 def get_data(par, timeframe, periods = 200,):
 	global API
@@ -144,6 +145,8 @@ def entrada(par, dir, timeframe):
 	global derrotas
 	global BANCAINICIAL
 	global sorogale
+	global TEND
+	global nivel_saldo
 
 	os.system('cls' if os.name == 'nt' else 'clear')
 	print(f'\n Abrindo operação {par} - {valor}')
@@ -170,6 +173,8 @@ def entrada(par, dir, timeframe):
 					print(f"Payout de: {payout}%")
 					print(f"Soros nivel {soros} concluido!")
 					print(f"Reiniciando entradas para R$: {valor}")
+					nivel_saldo += 1
+					BANCAINICIAL = float(round(banca(), 2))
 
 
 				elif nivelsoros >= soros and soros == 0:
@@ -185,7 +190,6 @@ def entrada(par, dir, timeframe):
 					valor = round((valor + lucro), 2)
 					os.system('cls' if os.name == 'nt' else 'clear')
 					print('WIN, LUCRO DE', round(lucro, 2))
-					saldo = round((float(round(banca(), 2)) - float(round(BANCAINICIAL, 2)) / 2), 2)
 					print(f"Payout de: {payout}%")
 					print(f"soro nivel {nivelsoros} ativado!")
 					print(f"Proxima entrada será de R$: {valor}")
@@ -203,16 +207,19 @@ def entrada(par, dir, timeframe):
 						print(f"Reiniciando entradas para RS: {entradaI}")
 						nivelsoros = 0
 						derrotas = 0
+						nivel_saldo = 0
+						BANCAINICIAL = float(round(banca(), 2))
 					else:
-						valor = abs((float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))) / 2)
+						valor = abs(round(banca() - BANCAINICIAL, 2) / 2)
 						print(f"Payout de: {payout}%")
-						print(f"Proxima entrada será RS: {entradaI}")
+						print(f"Proxima entrada será RS: {valor}")
 				else:
 					os.system('cls' if os.name == 'nt' else 'clear')
 					print('LOSS ❌, PERCA DE', round(lucro, 2))
-					valor = abs((float(round(banca(), 2)) - float(round(BANCAINICIAL, 2))) / 2)
+					valor = entradaI
 					print(f"Payout de: {payout}%")
 					print(f"Proxima entrada será RS: {entradaI}")
+					nivel_saldo = 0
 
 					
 				
@@ -232,6 +239,8 @@ nivelsoros = 0
 payminima = 0
 payout = ""	
 sorogale = True
+BANCAINICIAL = 0
+nivel_saldo = 0
 
 
 def configurar():
@@ -244,6 +253,8 @@ def configurar():
 	global payminima
 	global payout
 	global sorogale
+	global TEND
+	global BANCAINICIAL
 
 
 	
@@ -265,6 +276,15 @@ def configurar():
 		sorogale = True
 	else:
 		sorogale = False
+	tendencia = input("Deseja respeitar tendencia?:\n1 = SIM\n2 = NÃO\n\nDigite o numero: ")
+	tendencia = int(tendencia)
+	if tendencia == 1:
+		TEND = True
+	else:
+		TEND = False
+	BANCAINICIAL = float(round(banca(), 2))
+	os.system('cls' if os.name == 'nt' else 'clear')
+	print("\nOk!, Aguarde....")
 
 	try:
 		payout = API.get_digital_payout(par)
@@ -287,7 +307,7 @@ configurar()
 print('\n')
 os.system('cls' if os.name == 'nt' else 'clear')
 while True:
-	saldo = round((float(round(banca(), 2)) - float(round(BANCAINICIAL, 2)) / 2), 2)
+	saldo = round(banca() - BANCAINICIAL, 2)
 	df = get_data(par, timeframe, 200,)
 	
 	taxa, color = MovAvarDev(df, 20)
@@ -295,12 +315,27 @@ while True:
 	ssma_50 = TA.SSMA(df, 50)
 	
 	if ssma_3.iloc[-1] <= ssma_50.iloc[-1] and ssma_3.iloc[-2] > ssma_50.iloc[-2] and color == 'red':
-		entrada(par, 'put', timeframe)
+		if TEND:
+			rtend = tendencia(par,60)
+			if rtend == "PUT":
+				entrada(par, 'put', timeframe)
+			else:
+				print(f"Entrada recusada de PUT por esta contra tendencia")
+		else:
+			entrada(par, 'put', timeframe)
+
 	
 	elif ssma_3.iloc[-1] >= ssma_50.iloc[-1] and ssma_3.iloc[-2] < ssma_50.iloc[-2] and color == 'green':
-		entrada(par, 'call', timeframe)
+		if TEND:
+			rtend = tendencia(par,60)
+			if rtend == "CALL":
+				entrada(par, 'call', timeframe)
+			else:
+				print(f"Entrada recusada de CALL por esta contra tendencia")
+		else:
+			entrada(par, 'call', timeframe)
 		
 		
-	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando {par}, Saldo: R$: {saldo}", end='\r')
+	print(f"[{ datetime.now().strftime('%H:%M:%S') }]:: Aguardando {par}, Saldo Nivel {nivel_saldo}: R$: {saldo}", end='\r')
 	
 	
