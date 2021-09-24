@@ -5,11 +5,15 @@ import json
 from datetime import datetime, timezone
 
 ######################### CONEXÃO COM IQ OPTION ################################################################
-API = IQ_Option("email@gmail.com","senha")
+Email = str(input("Digite seu Email: "))
+Senha = str(input("Digite sua senha: "))
+TK = str(input ("Digite o Token do seu bot: ")
+
+API = IQ_Option(Email,Senha)
 API.connect()
 
 ######################### CONEXÃO COM TELEBOT POR TOKEN ########################################################
-bot = telebot.TeleBot('TOKEN')
+bot = telebot.TeleBot(TK)
 
 
 lista_sinais = []
