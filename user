@@ -1,0 +1,14 @@
+[
+  {
+    "email": "ezequieleoss1986@gmail.com",
+    "id": 1,
+    "senha": "kauan1234",
+    "status": "False"
+  },
+  {
+    "email": "kyelclash@gmail.com",
+    "id": 2,
+    "senha": "kauan1234",
+    "status": "True"
+  }
+]
